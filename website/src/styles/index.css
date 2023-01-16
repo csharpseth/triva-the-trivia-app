@@ -1,0 +1,72 @@
+:root {
+	--backgroundColor: #DDDDDD;
+	--foregroundColor: #EEEEEE;
+	--fieldBackground: #EEEEEE;
+	--accentColor: #DE5C48;
+	--accentColorHover: #D35446;
+	--fieldBorder: #CCCCCC;
+	--hoverFontColor: #444444;
+	--fontColor: #222222;
+	--lightFontColor: #EEEEEE;
+
+	--positiveColor: #50B65A;
+	--negativeColor: #E74242;
+	
+	--linkColor: #38AAF1;
+	--warningColor: #EE2222;
+	--loadingBubbleStartColor: #DE5C48;
+	--loadingBubbleEndColor: #F99187;
+
+	--backgroundColorDark: #111111;
+	--foregroundColorDark: #222222;
+
+	--fieldBackgroundDark: #111111;
+	--fieldBorderDark: #444444;
+
+	--fontColorDark: #EEEEEE;
+	
+	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	font-size: 16px;
+	line-height: 24px;
+	font-weight: 400;
+
+	color-scheme: light dark;
+	color: var(--fontColor);
+
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-text-size-adjust: 100%;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	transition: 200ms;
+
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box;         /* Opera/IE 8+ */
+}
+
+body {
+	display: flex;
+	flex-direction: column;
+	width: 99.9vw;
+	min-height: 99.9vh;
+}
+
+#root {
+	display: flex;
+	flex: 1;
+	width: 100%;
+	min-height: 100%;
+}
+
+a {
+    color: var(--linkColor);
+    text-decoration: none;
+	border-bottom: 1pt solid transparent;
+    margin: 5pt;
+}

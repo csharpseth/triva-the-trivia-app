@@ -1,0 +1,33 @@
+.toggleButton {
+    width: 24pt;
+    height: 12pt;
+
+    padding: 1pt;
+
+    border: 1pt solid var(--fieldBorder);
+    background-color: var(--backgroundColor);
+    border-radius: 15pt;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.toggleButtonIndicator {
+    width: 12pt;
+    height: 12pt;
+    background-color: var(--accentColor);
+    border-radius: 10pt;
+    transform: translateX(0);
+    transition: 100ms;
+}
+
+#toggleOn {
+    transform: translateX(100%);
+}
+
+.toggleButtonDark {
+    background-color: var(--backgroundColorDark);
+    border-color: var(--fieldBorderDark);
+}

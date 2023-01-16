@@ -1,0 +1,178 @@
+.brandBar {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    width: 100%;
+    height: 30pt;
+    padding: 25pt;
+    padding-left: 0;
+    padding-right: 0;
+    background-color: var(--foregroundColor);
+    border-bottom: 1pt solid var(--fieldBorder);
+    z-index: 10;
+}
+
+#logo {
+    position: absolute;
+    width: 100pt;
+    padding: 0;
+    margin: 0;
+    left: 20pt;
+    cursor: pointer;
+}
+
+.nav {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.nav li {
+    text-decoration: none;
+    list-style: none;
+    padding: 10pt;
+    margin: 5pt;
+    width: 60pt;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 10pt;
+}
+
+.nav li:hover {
+    background-color: var(--backgroundColor);
+}
+
+.darkModeToggleSwitch {
+    position: absolute;
+    right: 20pt;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.darkModeToggleSwitch span {
+    font-size: 0.8rem;
+}
+
+#darkModeNav li {
+    color: var(--fontColorDark)
+}
+
+#darkModeNav li:hover {
+    background-color: var(--backgroundColorDark);
+}
+
+.brandBarDark {
+    background-color: var(--foregroundColorDark);
+    border-color: var(--fieldBorderDark);
+}
+
+@media only screen and (max-width: 900px) {
+    #logo {
+        width: 60pt;
+        left: 10pt;
+    }
+
+    .hamburger-menu-button {
+        position: absolute;
+        top: 10pt;
+        right: 0;
+
+        margin-right: 10pt;
+        padding: 5pt;
+
+        width: 30pt;
+        height: 30pt;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+
+        transition: 300ms;
+        transition-timing-function: ease-in-out;
+    }    
+
+    .hamburger-menu-button:hover {
+        filter: brightness(90%);
+    } 
+
+    .hamburger-menu-button div {
+        width: 100%;
+        height: 20%;
+        background-color: var(--fieldBorder);
+    }
+
+    .nav {
+        position: absolute;
+        right: 0;
+        top: 0;
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding-top: 50pt;
+        align-items: center;
+        overflow: hidden;
+        background-color: var(--foregroundColor);
+        width: 0;
+        height: 100vh;
+
+        transition-timing-function: ease-in-out;
+        transition: 300ms;
+    }
+    
+    .nav li {
+        text-decoration: none;
+        list-style: none;
+        padding: 10pt;
+        margin: 0;
+        width: 100%;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 0;
+    }
+
+    .darkModeToggleSwitch {
+        position: absolute;
+        bottom: 20pt;
+        right: 50%;
+        transform: translateX(50%);
+
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .open-menu {
+        width: 150pt;
+    }
+
+    .open-menu-button {
+        position: absolute;
+        margin-right: 115pt;
+    }
+
+    .open-menu-button div:nth-child(1) {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%) rotate(-45deg);
+
+    }
+
+    .open-menu-button div:nth-child(3) {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%) rotate(45deg);
+
+    }
+
+    .open-menu-button div:nth-child(2) {
+        width: 0;
+    }
+}

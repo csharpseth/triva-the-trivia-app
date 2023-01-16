@@ -1,0 +1,93 @@
+.overlayForm {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    padding: 15pt;
+    background-color: var(--foregroundColor);
+    border: 1pt solid var(--fieldBorder);
+    border-radius: 10pt;
+
+    z-index: 10;
+}
+
+.formButtons {
+    display: flex;
+    flex-direction: row;
+
+    justify-content: center;
+    align-items: center;
+}
+
+.formButtons div {
+    display: flex;
+    flex: 1;
+
+    justify-content: center;
+    align-items: center;
+
+    margin: 10pt;
+    padding: 5pt;
+    border-radius: 10pt;
+    color: #FFF;
+
+    cursor: pointer;
+}
+
+.formButtons div:hover {
+    filter: brightness(90%);
+}
+
+.formButtons div:nth-child(1) {
+    background-color: var(--positiveColor);
+}
+
+.formButtons div:nth-child(2) {
+    background-color: var(--negativeColor);
+}
+
+.closeButton {
+    position: absolute;
+    right: 5pt;
+    top: 5pt;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    width: 20pt;
+    height: 20pt;
+
+    cursor: pointer;
+    transition-timing-function: ease-in-out;
+    transition: 300ms;
+}
+
+.closeButton:hover {
+    filter: brightness(85%);
+}
+
+.closeButton div {
+    position: absolute;
+    width: 90%;
+    height: 20%;
+
+    background-color: var(--fieldBorder);
+    border-radius: 50pt;
+}
+
+.closeButton div:nth-child(1) {
+    transform: rotate(45deg);
+}
+
+.closeButton div:nth-child(2) {
+    transform: rotate(-45deg);
+}
+
+#darkForm {
+    background-color: var(--foregroundColorDark);
+    border-color: var(--fieldBorderDark);
+}

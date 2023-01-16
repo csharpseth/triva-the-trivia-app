@@ -1,0 +1,89 @@
+.inputField {
+	color: var(--fontColor);
+    position: relative;
+    width: 300pt;
+    margin: 5pt;
+}
+
+.inputField h3 {
+    margin: 5pt;
+    margin-left: 2pt;
+    margin-top: 0;
+}
+
+.inputField h3::after {
+    content: ':';
+}
+
+.input {
+    font-size: 1.2rem;
+    background-color: transparent;
+	outline: none;
+    border: none;
+	color: var(--fontColor);
+    flex: 1;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.field {
+    flex: 1;
+	border: 1pt solid var(--fieldBorder);
+	border-radius: 10pt;
+	background-color: var(--fieldBackground);
+    padding: 6pt;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.revealButton {
+    background: transparent;
+    border: none;
+    outline: none;
+    margin-right: 5pt;
+    margin-left: 5pt;
+    cursor: pointer;
+    color: var(--fontColor)
+}
+
+.revealButton:hover {
+    color: var(--hoverFontColor);
+}
+
+.warning {
+    color: var(--warningColor);
+    font-size: 0.8rem;
+    text-align: center;
+    flex: 1;
+    margin: 0;
+    padding: 0;
+}
+
+.invalidField {
+	border: 1pt solid var(--warningColor);
+}
+
+.invisibleText {
+    color: transparent;
+}
+
+
+#inputFieldDark {
+    color: var(--fontColorDark);
+}
+
+#inputDark {
+    color: var(--fontColorDark);
+}
+
+#fieldDark {
+	background-color: var(--fieldBackgroundDark);
+    border-color: var(--fieldBorderDark);
+}
+
+#revealButtonDark {
+    color: var(--fontColorDark)
+}
+

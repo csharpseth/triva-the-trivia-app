@@ -1,0 +1,138 @@
+.loadingPage {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+
+    display: flex;
+    flex: 1;
+    
+    justify-content: center;
+    align-items: center;
+
+    z-index: 9;
+
+    backdrop-filter: blur(3px);
+
+    opacity: 0;
+
+    animation-name: FadeIn;
+    animation-duration: 200ms;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in;
+}
+
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#loadingText {
+    z-index: 1;
+}
+
+#loadingText::after {
+    content: '';
+
+    animation-name: LoadingText;
+    animation-duration: 4s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+@keyframes FadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes LoadingText {
+    0% {
+        content: '.';
+    }
+    25% {
+        content: '..';
+    }
+    50% {
+        content: '...';
+    }
+    75% {
+        content: '..';
+    }
+    100% {
+        content: '.';
+    }
+}
+
+@keyframes Bubble {
+    0% {
+        transform: scale(0%);
+        border-color: var(--loadingBubbleStartColor);
+        background-color: var(--loadingBubbleStartColor);
+    }
+    50% {
+        transform: scale(100%);
+        border-color: var(--loadingBubbleEndColor);
+        background-color: var(--loadingBubbleEndColor);
+    }
+    100% {
+        transform: scale(0%);
+        border-color: var(--loadingBubbleStartColor);
+        background-color: var(--loadingBubbleStartColor);
+    }
+}
+
+.loadingBubble {
+    position: absolute;
+
+    width: 100pt;
+    height: 100pt;
+    transform: scale(100%);
+    border: 5pt solid var(--loadingBubbleStartColor);
+    background-color: var(--loadingBubbleStartColor);
+
+    border-radius: 100pt;
+}
+
+#bubble-1 {
+    animation-name: Bubble;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-delay: 0;
+}
+
+#bubble-2 {
+    animation-name: Bubble;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-delay: 250ms;
+}
+#bubble-3 {
+    animation-name: Bubble;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-delay: 500ms;
+}
+#bubble-4 {
+    animation-name: Bubble;
+    animation-duration: 1.5s;
+    animation-iteration-count: infinite;
+    animation-delay: 300ms;
+}
+#bubble-5 {
+    animation-name: Bubble;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-delay: 400ms;
+}
+#bubble-6 {
+    animation-name: Bubble;
+    animation-duration: 1.5s;
+    animation-iteration-count: infinite;
+    animation-delay: 500ms;
+}

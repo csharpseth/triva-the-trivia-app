@@ -1,0 +1,43 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--foregroundColor);
+    padding: 50pt;
+    padding-top: 30pt;
+    border-radius: 10pt;
+    border: 1pt solid var(--fieldBorder);
+}
+
+.form h1 {
+    padding: 0;
+    margin-bottom: 20pt;
+}
+
+.formButton {
+    flex: 1;
+    flex-grow: 1;
+    font-size: 1.5rem;
+    padding: 10pt;
+    margin: 10pt;
+    border: none;
+    outline: none;
+    border-radius: 10pt;
+    cursor: pointer;
+    background-color: var(--accentColor);
+    color: var(--lightFontColor);
+    font-weight: 600;
+    transition: 350ms;
+}
+
+.formButton:hover {
+    background-color: var(--accentColorHover);
+}
+
+#formDark {
+    background-color: var(--foregroundColorDark);
+    border-color: var(--fieldBorderDark);
+    color: var(--fontColorDark);
+    border-color: var(--fieldBorderDark);
+}

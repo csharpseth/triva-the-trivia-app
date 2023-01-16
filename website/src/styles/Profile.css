@@ -1,0 +1,241 @@
+.profileHeading {
+    display: flex;
+    flex-direction: row;
+
+    justify-content: center;
+    align-items: center;
+
+    background-color: var(--foregroundColor);
+    border: 1pt solid var(--fieldBorder);
+    border-radius: 10pt;
+
+    padding: 10pt;
+    width: 100%;
+}
+
+.profileData {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 10pt;
+}
+
+.profileDataHeader {
+    position: relative;
+}
+
+.profileName {
+    font-size: 2.5rem;
+    padding-bottom: 10pt;
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+
+.editProfileButton {
+    position: absolute;
+
+    display: flex;
+    flex-direction: row;
+
+    justify-content: center;
+    align-items: center;
+
+    top: 50%;
+    right: -10pt;
+
+    height: 70%;
+    padding-left: 5pt;
+    padding-right: 5pt;
+
+    background-color: var(--backgroundColor);
+    border: 1pt solid var(--fieldBorder);
+    border-radius: 5pt;
+
+    transform: translate(100%, -60%);
+
+    cursor: pointer;
+}
+
+.editProfileButton:hover {
+    filter: brightness(90%);
+}
+
+.profileInteractionButton {
+    position: absolute;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    top: 0;
+    right: 0;
+
+    transform: translate(100%, -50%);
+
+    border-radius: 10pt;
+    background-color: var(--positiveColor);
+
+    width: 15pt;
+    height: 15pt;
+
+    cursor: pointer;
+}
+
+.profileInteraction {
+    position: absolute;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    top: 0;
+    right: -15pt;
+
+    transform: translate(100%, 0);
+
+    width: 0;
+
+    border-radius: 10pt;
+    color: var(--lightFontColor);
+
+    overflow: hidden;
+
+    cursor: pointer;
+
+    transition-timing-function: ease-in-out;
+    transition: 200ms;
+}
+
+.profileInteraction div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: var(--accentColor);
+    margin: 0;
+    padding: 0;
+    width: 70pt;
+    margin-right: 2pt;
+    border-radius: 10pt;
+    font-size: 0.9rem;
+
+    overflow: hidden;
+
+    line-break: none;
+}
+
+.profileInteraction div:hover {
+    background-color: var(--accentColorHover);
+}
+
+.profileInteractionButton:hover {
+    background-color: #35b541;
+}
+
+.profileInteractionExpanded {
+    width: 150pt;
+}
+
+.profileGeneralStat {
+    font-size: 1.1rem;
+    font-weight: 300;
+    padding: 0;
+    margin: 0;
+    margin-right: 30pt;
+    margin-bottom: 5pt;
+}
+
+.profileMinorStat {
+    font-size: 0.8rem;
+    font-weight: 100;
+}
+
+.profileUsername {
+    font-size: 1rem;
+    text-align: center;
+    font-weight: 400;
+    padding: 2pt 5pt 2pt 5pt;
+    border-radius: 5pt;
+    background-color: var(--backgroundColor);
+}
+
+.profileUsername::before {
+    content: '@';
+}
+
+.profileStats {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 10pt;
+}
+
+.profileAvatar {
+    width: 100pt;
+    height: 100pt;
+    margin-right: 50pt;
+    border-radius: 100pt;
+    overflow: hidden;
+    padding: 2pt;
+    border: 2pt solid var(--accentColor)
+}
+
+.profileAvatar img {
+    width: 100%;
+}
+
+#profileHeadingDark {
+    background-color: var(--foregroundColorDark);
+    border-color: var(--fieldBorderDark);
+}
+
+#profileDataDark {
+    color: var(--fontColorDark);
+}
+
+#profileUsernameDark {
+    background-color: var(--backgroundColorDark);
+}
+
+@media only screen and (max-width: 900px) {
+    .profileData {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 10pt;
+        min-width: 0;
+    }
+
+    .profileName {
+        font-size: 1.5rem;
+        padding-bottom: 5pt;
+    }
+    
+    .profileGeneralStat {
+        font-size: 1rem;
+        margin-right: 15pt;
+        margin-bottom: 5pt;
+    }
+    
+    .profileMinorStat {
+        font-size: 0.6rem;
+    }
+    
+    .profileUsername {
+        font-size: 0.9rem;
+    }
+
+    .profileAvatar {
+        width: 50pt;
+        height: 50pt;
+        margin-right: 15pt;
+        margin-top: 15pt;
+        border-radius: 40pt;
+        padding: 1pt;
+        border: 2pt solid var(--accentColor);
+        align-self: flex-start;
+    }
+}
