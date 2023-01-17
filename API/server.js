@@ -3,6 +3,7 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 
 require('dotenv').config()
+require('./websocket')
 
 const mongoose = require('mongoose')
 mongoose.connect(process.env.DB_URL, {
@@ -13,6 +14,8 @@ mongoose.connect(process.env.DB_URL, {
 });
 
 const usersRouter = require('./Routes/UsersRoute');
+const sessionRoute = require('./Routes/SessionRoute');
+const Topics = require('./Data/Topics')
 
 const app = express()
 const port = process.env.PORT | 3000
@@ -23,6 +26,11 @@ app.use(bodyParser.json({ limit: '20MB' }))
 app.use(express.static('public'))
 
 app.use('/users', usersRouter)
+app.use('/session', sessionRoute)
+
+app.get('/topics', (req, res) => {
+    res.json(Topics)
+})
 
 app.listen(port, () => {
     console.log(`Server is Listening on ${port}`)

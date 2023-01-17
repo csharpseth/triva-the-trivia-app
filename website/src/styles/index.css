@@ -8,6 +8,8 @@
 	--hoverFontColor: #444444;
 	--fontColor: #222222;
 	--lightFontColor: #EEEEEE;
+	--dividerColor: #AAAAAA;
+	--backgroundFontColor: #AAAAAA;
 
 	--positiveColor: #50B65A;
 	--negativeColor: #E74242;
@@ -22,6 +24,9 @@
 
 	--fieldBackgroundDark: #111111;
 	--fieldBorderDark: #444444;
+	
+	--dividerColorDark: #333333;
+	--backgroundFontColorDark: #444444;
 
 	--fontColorDark: #EEEEEE;
 	
@@ -38,6 +43,8 @@
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	-webkit-text-size-adjust: 100%;
+
+	overflow-x: hidden;
 }
 
 * {

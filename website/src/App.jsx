@@ -10,6 +10,7 @@ import LoadingOverlay from './views/screens/LoadingOverlay'
 import HomeScreen from './views/screens/HomeScreen'
 import ProfileScreen from './views/screens/ProfileScreen'
 import NoMatchScreen from './views/screens/404Screen'
+import WebSocketTesting from './views/screens/WebSocketTesting'
 
 function App() {
 	const { darkMode, isLoading, loggedIn, userData } = useContext(ApplicationContext)
@@ -27,6 +28,7 @@ function App() {
 						</>
 						:
 						<>
+						<Route path='/' element={<WebSocketTesting />} />
 						<Route path="/login" element={<LoginScreen />} />
 						<Route path="/register" element={<RegistrationScreen />} />
 						</>

@@ -3,16 +3,19 @@
     position: relative;
     width: 300pt;
     margin: 5pt;
+    margin-top: 12pt;
+    margin-bottom: 12pt;
 }
 
 .inputField h3 {
-    margin: 5pt;
+    position: absolute;
+    transform: translateY(-100%);
     margin-left: 2pt;
     margin-top: 0;
 }
 
 .inputField h3::after {
-    content: ':';
+    content: '';
 }
 
 .input {
@@ -53,12 +56,20 @@
 }
 
 .warning {
+    position: absolute;
     color: var(--warningColor);
     font-size: 0.8rem;
     text-align: center;
     flex: 1;
     margin: 0;
     padding: 0;
+
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
 }
 
 .invalidField {

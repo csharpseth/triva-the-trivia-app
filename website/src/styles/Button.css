@@ -1,0 +1,37 @@
+.inputButton {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+
+    justify-content: center;
+    align-items: center;
+
+    min-width: 100pt;
+    padding: 6pt;
+
+    font-size: 1.2rem;
+
+    cursor: pointer;
+}
+
+.buttonBackground {
+    position: absolute;
+    background-color: var(--accentColor);
+
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    
+    border-radius: 10pt;
+    z-index: 0;
+}
+
+.buttonText {
+    color: var(--lightFontColor);
+    z-index: 1;
+}
+
+.inputButton:hover .buttonBackground {
+    filter: brightness(90%);
+}

@@ -1,0 +1,90 @@
+.dropDownMenuField {
+    position: relative;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+
+    cursor: pointer;
+}
+
+.dropDownMenuFieldBackground {
+    border: 1pt solid var(--fieldBorder);
+	border-radius: 10pt;
+	background-color: var(--fieldBackground);
+    padding: 6pt;
+
+    width: 200pt;
+    height: 30pt;
+
+    z-index: 1;
+}
+
+.selectionBody:hover {
+    filter: brightness(95%);
+}
+
+.dropDownIcon {
+    position: absolute;
+    z-index: 2;
+
+    right: 10pt;
+    top: 2pt;
+
+    transform: rotate(180deg);
+    font-size: 1.5rem;
+    font-weight: 600;
+
+    color: var(--fieldBorder);
+}
+
+.dropDownMenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 0;
+
+    overflow-y: scroll;
+
+    border: 1pt solid transparent;
+	border-radius: 5pt;
+	background-color: transparent;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    z-index: 9;
+
+    scrollbar-width: none;
+
+    transition: 200ms;
+}
+
+.selectionText {
+    position: absolute;
+    font-size: 1.2rem;
+    z-index: 2;
+
+    left: 6pt;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.selectionElement {
+    padding: 5pt;
+    width: 100%;
+    background-color: var(--fieldBackground);
+}
+
+.selectionElement:hover {
+    filter: brightness(90%);
+}
+
+#dropDownMenuOpen {
+    max-height: 100pt;
+    border-color: var(--fieldBorder);
+	background-color: var(--fieldBackground);
+}

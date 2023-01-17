@@ -1,0 +1,48 @@
+.home-page-container {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    
+    width: 1280px;
+	min-height: 100%;
+    padding-top: 70pt;
+
+    transition: 500ms;
+}
+
+.section {
+    position: relative;
+    display: flex;
+    flex: 1;
+    width: 100%;
+
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    background-color: var(--foregroundColor);
+    border-radius: 10pt;
+    margin: 10pt;
+}
+
+.section h1 {
+    color: var(--backgroundFontColor);
+    font-size: 4rem;
+    margin-bottom: 50pt;
+}
+
+#sectionDark {
+    background-color: var(--foregroundColorDark);
+}
+
+#sectionDark h1 {
+    color: var(--backgroundFontColorDark);
+}
+
+@media only screen and (max-width: 1300px) {
+    .home-page-container {
+        width: 90vw;
+    }
+}
