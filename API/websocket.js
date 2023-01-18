@@ -1,3 +1,4 @@
+const axios = require('axios')
 const io = require('socket.io')(4000, {
     cors: {
         origin: ['http://localhost:5173'],
@@ -5,7 +6,6 @@ const io = require('socket.io')(4000, {
 })
 
 io.on('connection', socket => {
-    socket.on('message', (message) => {
-        io.emit('receive-message', message)
-    })
+    //console.log('User Established WebSocket Connection Successfully')
+    
 })

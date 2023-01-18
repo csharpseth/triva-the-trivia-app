@@ -5,7 +5,6 @@
 	justify-content: center;
 	align-items: center;
 
-	overflow-x: hidden;
 	background-color: var(--backgroundColor);
 	min-height: 100%;
 	width: 100%;
@@ -19,12 +18,17 @@
     
     width: 1280px;
 	min-height: 100%;
-
-    overflow-x: hidden;
 }
 
 .fadeIn {
     animation-name: FadeIn;
+    animation-duration: 150ms;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+}
+
+.fadeOut {
+    animation-name: FadeOut;
     animation-duration: 150ms;
     animation-timing-function: ease-in;
     animation-fill-mode: forwards;
@@ -95,6 +99,15 @@
     }
 }
 
+@keyframes FadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
 .vertical-center {
 	display: flex;
 	height: 100%;
@@ -107,6 +120,14 @@
 	display: flex;
 	height: 100%;
 	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+.horizontal-flex-left-spread {
+	display: flex;
+	width: 100%;
+	flex-direction: row;
 	justify-content: flex-start;
 	align-items: center;
 }
@@ -142,6 +163,11 @@
 	height: 100%;
 }
 
+.invisible {
+    color: transparent;
+    background-color: transparent;
+}
+
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
       -webkit-user-select: none; /* Safari */
@@ -150,7 +176,7 @@
           -ms-user-select: none; /* Internet Explorer/Edge */
               user-select: none; /* Non-prefixed version, currently
                                     supported by Chrome, Edge, Opera and Firefox */
-  }
+}
 
 .slide-out-left {
     transform: translateX(-200%);

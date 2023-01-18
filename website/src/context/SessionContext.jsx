@@ -10,18 +10,92 @@ import { ApplicationContext } from "./ApplicationContext";
 export const SessionContext = createContext()
 
 export const SessionProvider = ({ children }) => {
+    const navigate = useNavigate()
+    const [activeSession, setActiveSession] = useState()
+    const [activeSessionHosted, setActiveSessionHosted] = useState(false)
 
     const [topics, setTopics] = useState([])
-    const { Loading } = useContext(ApplicationContext)
+    const { userData, Loading } = useContext(ApplicationContext)
+
+    function GoToActiveSession() {
+        navigate('/session')
+    }
 
     function CreateSession(title, topic, username) {
         Loading(true)
         axios.post(`${API_URL}/session/create`, { title, topic, username })
         .then(res => {
-            console.log(res.data)
+            if(res.data.success === true) {
+                setActiveSession(res.data.session)
+                setActiveSessionHosted(true)
+                navigate('/session')
+            }
             Loading(false)
         }).catch(e => {
-            console.log(`Login Error: ${e}`)
+            console.log(`Create Session Error: ${e}`)
+            Loading(false)
+        })
+    }
+
+    function JoinSession(sessionKey) {
+        Loading(true)
+        axios.post(`${API_URL}/session/join`, { username: userData.username, key: sessionKey })
+        .then(res => {
+            if(res.data.success === true) {
+                setActiveSession(res.data.session)
+                setActiveSessionHosted(false)
+                navigate('/session')
+            }
+            Loading(false)
+        }).catch(e => {
+            console.log(`Create Session Error: ${e}`)
+            Loading(false)
+        })
+    }
+
+    function DeleteActiveHostedSession() {
+        if(activeSessionHosted !== true) return
+        Loading(true)
+        axios.post(`${API_URL}/session/delete`, { username: userData.username, authKey: userData.authKey, sessionId: activeSession.id })
+        .then(res => {
+            if(res.data.success === true) {
+                setActiveSession(undefined)
+                setActiveSessionHosted(false)
+                navigate('/')
+            }
+            Loading(false)
+        }).catch(e => {
+            console.log(`Session Delete Error: ${e}`)
+            Loading(false)
+        })
+    }
+
+    function VerifyActiveSession() {
+        Loading(true)
+        axios.get(`${API_URL}/session/verify/${activeSession.id}`)
+        .then(res => {
+            if(res.data.success === true) {
+                setActiveSession(res.data.session)
+            }else {
+                setActiveSession(undefined)
+                navigate('/')
+            }
+            Loading(false)
+        }).catch(e => {
+            console.log(`Session Delete Error: ${e}`)
+            Loading(false)
+        })
+    }
+
+    function LeaveActiveSession() {
+        Loading(true)
+        axios.post(`${API_URL}/session/leave`, { username: userData.username, sessionId: activeSession.id })
+        .then(res => {
+            setActiveSession(undefined)
+            navigate('/')
+            Loading(false)
+        }).catch(e => {
+            console.log(`Session Delete Error: ${e}`)
             Loading(false)
         })
     }
@@ -31,12 +105,12 @@ export const SessionProvider = ({ children }) => {
         .then(res => {
             setTopics(res.data)
         }).catch(err => {
-            console.log(err)
+            console.log(`Failed To Fetch Topics: ${err}`)
         })
     }, [])
 
     return (
-        <SessionContext.Provider value={{ topics, CreateSession }}>
+        <SessionContext.Provider value={{ topics, activeSession, activeSessionHosted, CreateSession, DeleteActiveHostedSession, GoToActiveSession, JoinSession, VerifyActiveSession, LeaveActiveSession }}>
             {children}
         </SessionContext.Provider>
     )

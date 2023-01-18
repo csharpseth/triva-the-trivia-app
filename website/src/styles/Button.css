@@ -1,13 +1,13 @@
-.inputButton {
+.button {
     position: relative;
     display: flex;
     flex-direction: row;
 
     justify-content: center;
     align-items: center;
-
-    min-width: 100pt;
+    
     padding: 6pt;
+    margin: 5pt;
 
     font-size: 1.2rem;
 
@@ -27,11 +27,42 @@
     z-index: 0;
 }
 
+.button:hover .buttonBackground {
+    filter: brightness(90%);
+}
+
 .buttonText {
     color: var(--lightFontColor);
     z-index: 1;
 }
 
-.inputButton:hover .buttonBackground {
-    filter: brightness(90%);
+.buttonNegative {
+    background-color: var(--negativeColor);
+}
+
+.buttonPositive {
+    background-color: var(--positiveColor);
+}
+
+/* INPUT BUTTON */
+.inputButton {
+    min-width: 100pt;
+}
+
+/* FORM BUTTON */
+.formButton {
+    flex: 1;
+    min-width: 60pt;
+}
+
+/* FITTED BUTTON */
+
+.fittedButton {
+    flex: 1;
+    
+    min-width: 60pt;
+    max-width: 100pt;
+    padding: 2pt;
+
+    font-size: 1rem;
 }

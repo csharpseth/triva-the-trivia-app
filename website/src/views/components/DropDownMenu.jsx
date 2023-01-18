@@ -4,7 +4,7 @@ import '../../styles/DropDownMenu.css'
 
 export default function DropDownMenu(props) {
 
-    const { value, options, onChange } = props
+    const { value, title, options, onChange } = props
 
     const [menuOpen, setMenuOpen] = useState(false)
 
@@ -18,6 +18,8 @@ export default function DropDownMenu(props) {
 
     return (
         <div className='dropDownMenuField'>
+            <h3>{title}</h3>
+
             <div className="dropDownMenu" id={menuOpen?'dropDownMenuOpen':''}>
                 {options.map((opt, index) => <span key={index} className='selectionElement' onClick={() => SetSelection(index)}>{opt}</span>)}
             </div>

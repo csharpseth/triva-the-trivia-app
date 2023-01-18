@@ -1,0 +1,35 @@
+.notification {
+    position: fixed;
+    bottom: 10pt;
+    left: 50%;
+    transform: translate(-50%, 120%);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+    height: 100pt;
+    width: 300pt;
+
+    background-color: var(--foregroundColor);
+    border: 1pt solid var(--fieldBorder);
+    border-radius: 10pt;
+
+    padding: 10pt;
+}
+
+.notification h1 {
+    font-size: 1.5rem;
+}
+
+.notificationOptions{
+    position: absolute;
+    bottom: 0;
+    width: 90%;
+    align-self: center;
+}
+
+#notificationOpen {
+    transform: translate(-50%, 0%);
+}

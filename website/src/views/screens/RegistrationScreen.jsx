@@ -4,10 +4,11 @@ import InputField from '../components/InputField';
 import '../../styles/Form.css'
 import { Link } from 'react-router-dom';
 import { ApplicationContext } from '../../context/ApplicationContext';
+import { FormButton } from '../components/Button';
+import { NO_SPEC_CHAR, NO_SPEC_CHAR_ALLOW_SPACE } from '../../config/REGEX';
 
 export default function RegistrationScreen(props) {
-    const [firstName, setFirstName] = useState('')
-    const [lastName, setLastName] = useState('')
+    const [name, setName] = useState('')
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
@@ -28,31 +29,28 @@ export default function RegistrationScreen(props) {
             return
         }
 
-        Register(firstName, lastName, username, password)
+        Register(name, username, password)
     }
 
     return (
         <div id='register' className='page-container-centered'>
             <div className='form' id={ darkMode ? 'formDark' : '' }>
                 <h1>Register</h1>
-                <InputField title={'First Name'}
-                    value={firstName}
-                    warningMessage={firstName !== '' ? 'Cannot contain special characters or exceed a length of 30.' : 'You must enter a first name.'}
+                <InputField title={'Name'}
+                    value={name}
+                    warningMessage={name !== '' ? 'Cannot contain special characters or exceed a length of 30.' : 'You must enter a name.'}
                     required={true}
+                    maxLength={30}
+                    regex={NO_SPEC_CHAR_ALLOW_SPACE}
                     onValidityChange={valid => setValidFirstName(valid)}
-                    onChange={value => setFirstName(value)}
-                    />
-                <InputField title={'Last Name'}
-                    value={lastName}
-                    warningMessage={lastName !== '' ? 'Cannot contain special characters or exceed a length of 30.' : 'You must enter a last name.'}
-                    required={true}
-                    onValidityChange={valid => setValidLastName(valid)}
-                    onChange={value => setLastName(value)}
+                    onChange={value => setName(value)}
                     />
                 <InputField title={'Username'}
                     value={username}
                     warningMessage={username !== '' ? 'Cannot contain special characters or exceed a length of 15.' : 'You must enter a username.'}
                     required={true}
+                    maxLength={15}
+                    regex={NO_SPEC_CHAR}
                     onValidityChange={valid => setValidUsername(valid)}
                     onChange={value => setUsername(value)}
                     />
@@ -79,7 +77,7 @@ export default function RegistrationScreen(props) {
                 </div>
 
                 <div className='horizontal-flex-center-spread'>
-                    <button className='formButton' onClick={TryRegister}>Register</button>
+                    <FormButton value='Register' onPush={TryRegister} />
                 </div>
             </div>
         </div>

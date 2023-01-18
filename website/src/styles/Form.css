@@ -1,4 +1,5 @@
 .form {
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -15,24 +16,44 @@
     margin-bottom: 20pt;
 }
 
-.formButton {
-    flex: 1;
-    flex-grow: 1;
-    font-size: 1.5rem;
-    padding: 10pt;
-    margin: 10pt;
-    border: none;
-    outline: none;
-    border-radius: 10pt;
+.closeButton {
+    position: absolute;
+    right: 5pt;
+    top: 5pt;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    width: 20pt;
+    height: 20pt;
+
     cursor: pointer;
-    background-color: var(--accentColor);
-    color: var(--lightFontColor);
-    font-weight: 600;
-    transition: 350ms;
+    transition-timing-function: ease-in-out;
+    transition: 300ms;
+    z-index: 12;
 }
 
-.formButton:hover {
-    background-color: var(--accentColorHover);
+.closeButton:hover {
+    filter: brightness(85%);
+}
+
+.closeButton div {
+    position: absolute;
+    width: 90%;
+    height: 20%;
+
+    background-color: var(--fieldBorder);
+    border-radius: 50pt;
+}
+
+.closeButton div:nth-child(1) {
+    transform: rotate(45deg);
+}
+
+.closeButton div:nth-child(2) {
+    transform: rotate(-45deg);
 }
 
 #formDark {
@@ -40,4 +61,12 @@
     border-color: var(--fieldBorderDark);
     color: var(--fontColorDark);
     border-color: var(--fieldBorderDark);
+}
+
+
+@media only screen and (max-width: 900px) {
+    .form {
+        padding: 10pt;
+        margin-bottom: 60pt;
+    }
 }

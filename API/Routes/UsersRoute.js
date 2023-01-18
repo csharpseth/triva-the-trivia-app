@@ -18,8 +18,7 @@ const ConstructAuthenticatedResponseUser = (user) => {
     let resUser = {
         success: true,
         user: {
-            firstName: user.firstName,
-            lastName: user.lastName,
+            name: user.name,
             username: user.username,
             score: user.score,
             friends: user.friends,
@@ -35,8 +34,7 @@ const ConstructResponseUser = (user) => {
     let resUser = {
         success: true,
         user: {
-            firstName: user.firstName,
-            lastName: user.lastName,
+            name: user.name,
             username: user.username,
             score: user.score,
             friends: user.friends,
@@ -45,6 +43,12 @@ const ConstructResponseUser = (user) => {
     }
 
     return resUser
+}
+
+const SearchUsers = async(query) => {
+    const reg = new RegExp(query, 'i')
+    let results = await User.find({$or: [{name: {$regex: reg}}, {username: {$regex: reg}}]}, 'name username friends score')
+    return results
 }
 
 const downloadAvatarImage = async(username) => {
@@ -67,6 +71,11 @@ const downloadAvatarImage = async(username) => {
     }
 }
 
+router.get('/findall/:query', async (req, res) => {
+    let temp = await SearchUsers(req.params.query)
+    res.json(temp)
+})
+
 router.get('/:username', async (req, res) => {
     const username = req.params.username
 
@@ -85,6 +94,11 @@ router.get('/:username', async (req, res) => {
         console.log(error.message)
         res.json({ success: false, message: error.message })
     }
+})
+
+router.post('/findall', async (req, res) => {
+    let temp = await SearchUsers(req.body.query)
+    res.json(temp)
 })
 
 router.post('/:username/edit', async (req, res) => {
@@ -107,12 +121,10 @@ router.post('/:username/edit', async (req, res) => {
             }
 
             const newUsername = req.body.username
-            const firstName = req.body.firstName
-            const lastName = req.body.lastName
+            const name = req.body.name
 
             user.username = newUsername
-            user.firstName = firstName
-            user.lastName = lastName
+            user.name = name
 
             await user.save()
 
@@ -139,6 +151,29 @@ router.post('/:username/edit', async (req, res) => {
     
 })
 
+router.post('/set_socket_id', async (req, res) => {
+    const username = req.body.username
+    const socket_id = req.body.socket_id
+
+    try {
+        const user = await User.findOne({ username })
+        if(user === undefined || user === null) {
+            console.log(`Unable to finder user: ${username}.`)
+            res.json({ success: false, message: 'No User With That Username Found.' })
+            return
+        }
+        
+        user.socket_id = socket_id
+        await user.save()
+
+        res.json({ success: true })
+
+    } catch (error) {
+        console.log(error.message)
+        res.json({ success: false, message: error.message })
+    }
+})
+
 router.post('/login', async (req, res) => {
     const username = req.body.username
     const password = req.body.password
@@ -158,9 +193,8 @@ router.post('/login', async (req, res) => {
                 return
             }
 
-            const authKey = uuid()
             user.authentication.loggedIn = true
-            user.authentication.key = authKey
+            user.authentication.key !== '' ? '' : user.authentication.key = uuid()
 
             await user.save()
 
@@ -236,8 +270,7 @@ router.post('/logout', async (req, res) => {
 })
 
 router.post('/register', async (req, res) => {
-    const firstName = req.body.firstName
-    const lastName = req.body.lastName
+    const name = req.body.name
     const username = req.body.username
     const password = req.body.password
 
@@ -261,8 +294,7 @@ router.post('/register', async (req, res) => {
             const key = uuid()
 
             const newUser = new User({
-                firstName,
-                lastName,
+                name,
                 username,
                 passwordHash,
                 authentication: {
@@ -273,7 +305,7 @@ router.post('/register', async (req, res) => {
             await newUser.save()
             await downloadAvatarImage(username)
 
-            const responseUser = ConstructAuthenticatedResponseUser(user)
+            const responseUser = ConstructAuthenticatedResponseUser(newUser)
             res.json(responseUser)
         })
     } catch (error) {

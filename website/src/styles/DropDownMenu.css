@@ -7,6 +7,17 @@
     align-items: center;
 
     cursor: pointer;
+    margin: 5pt;
+    margin-top: 12pt;
+    margin-bottom: 12pt;
+}
+
+.dropDownMenuField h3 {
+    position: absolute;
+    transform: translateY(-100%);
+    top: 0;
+    margin-left: 2pt;
+    margin-top: 0;
 }
 
 .dropDownMenuFieldBackground {
@@ -15,7 +26,7 @@
 	background-color: var(--fieldBackground);
     padding: 6pt;
 
-    width: 200pt;
+    width: 300pt;
     height: 30pt;
 
     z-index: 1;
@@ -23,6 +34,10 @@
 
 .selectionBody:hover {
     filter: brightness(95%);
+}
+
+.selectionBody:hover .dropDownIcon {
+    filter: brightness(80%);
 }
 
 .dropDownIcon {
@@ -87,4 +102,10 @@
     max-height: 100pt;
     border-color: var(--fieldBorder);
 	background-color: var(--fieldBackground);
+}
+
+@media only screen and (max-width: 900px) {
+    .dropDownMenuFieldBackground {
+        width: 230pt;
+    }
 }

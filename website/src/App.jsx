@@ -6,11 +6,15 @@ import LoginScreen from './views/screens/LoginScreen'
 import RegistrationScreen from './views/screens/RegistrationScreen'
 
 import { ApplicationContext } from './context/ApplicationContext'
-import LoadingOverlay from './views/screens/LoadingOverlay'
+import LoadingOverlay from './views/components/LoadingOverlay'
 import HomeScreen from './views/screens/HomeScreen'
 import ProfileScreen from './views/screens/ProfileScreen'
+import SessionScreen from './views/screens/SessionScreen'
+import FriendScreen from './views/screens/FriendScreen'
+import Notification from './views/components/Notification'
 import NoMatchScreen from './views/screens/404Screen'
-import WebSocketTesting from './views/screens/WebSocketTesting'
+
+import { SocketProvider } from './context/SocketContext'
 
 function App() {
 	const { darkMode, isLoading, loggedIn, userData } = useContext(ApplicationContext)
@@ -20,22 +24,30 @@ function App() {
 			<div className='app-pages-container'>
 				{isLoading ? <LoadingOverlay /> : ''}
 				<NavBar />
+					{userData !== undefined ? 
+					<>
+					<SocketProvider>
+						<Routes>
+							<Route index path='/' exact element={<HomeScreen />} />
+							<Route path='/profile/:user' exact element={<ProfileScreen />}/>
+							<Route path='/friends' exact element={<FriendScreen />} />
+							<Route path='/session' exact element={<SessionScreen />} />
+							<Route path='*' element={<NoMatchScreen />} />
+						</Routes>
+					</SocketProvider>
+					</>
+					:
+					<>
 					<Routes>
-						{userData !== undefined ? 
-						<>
-						<Route index path={'/'} exact element={<HomeScreen />} />
-						<Route path={'/profile/:user'} exact element={<ProfileScreen />}/>
-						</>
-						:
-						<>
-						<Route path='/' element={<WebSocketTesting />} />
 						<Route path="/login" element={<LoginScreen />} />
 						<Route path="/register" element={<RegistrationScreen />} />
-						</>
-						}
-						<Route path='*' element={<NoMatchScreen />} />
+						<Route path='*' element={<Navigate to={'/login'} />} />
 					</Routes>
+					</>
+					}
 			</div>
+
+			<Notification />
 		</div>
 	)
 }

@@ -2,8 +2,6 @@
     width: 24pt;
     height: 12pt;
 
-    padding: 1pt;
-
     border: 1pt solid var(--fieldBorder);
     background-color: var(--backgroundColor);
     border-radius: 15pt;

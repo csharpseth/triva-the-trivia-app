@@ -104,8 +104,10 @@
 
     .hamburger-menu-button div {
         width: 100%;
-        height: 20%;
+        height: 4pt;
         background-color: var(--fieldBorder);
+        transition: 300ms;
+        transition-timing-function: ease-in-out;
     }
 
     .nav {
@@ -123,6 +125,8 @@
         width: 0;
         height: 100vh;
 
+        border-left: 1pt solid var(--fieldBorder);
+
         transition-timing-function: ease-in-out;
         transition: 300ms;
     }
@@ -130,12 +134,13 @@
     .nav li {
         text-decoration: none;
         list-style: none;
-        padding: 10pt;
+        padding: 15pt;
         margin: 0;
         width: 100%;
         text-align: center;
         cursor: pointer;
         border-radius: 0;
+        font-size: 1.5rem;
     }
 
     .darkModeToggleSwitch {
@@ -155,24 +160,32 @@
 
     .open-menu-button {
         position: absolute;
-        margin-right: 115pt;
+        margin-right: 110pt;
     }
 
     .open-menu-button div:nth-child(1) {
         position: absolute;
         top: 50%;
-        transform: translateY(-50%) rotate(-45deg);
+        width: 80%;
+        transform: translateY(-50%) rotate(-135deg);
 
     }
 
     .open-menu-button div:nth-child(3) {
         position: absolute;
         top: 50%;
-        transform: translateY(-50%) rotate(45deg);
+        width: 80%;
+        transform: translateY(-50%) rotate(135deg);
 
     }
 
     .open-menu-button div:nth-child(2) {
         width: 0;
     }
+
+    #darkModeNav {
+        background-color: var(--foregroundColorDark);
+        border-color: var(--fieldBorderDark);
+    }
+    
 }

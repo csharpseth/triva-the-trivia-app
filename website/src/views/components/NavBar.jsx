@@ -14,6 +14,11 @@ export default function NavBar(props) {
 
     const { darkMode, ToggleDarkMode, loggedIn, userData, Logout } = useContext(ApplicationContext)
 
+    function Navigate(to) {
+        navigate(to)
+        setNavMenuOpen(false)
+    }
+
     return (
         <div className={darkMode ? 'brandBar brandBarDark' : 'brandBar'}>
             <img onClick={() => navigate('/')} id='logo' src={Logo} />
@@ -21,9 +26,9 @@ export default function NavBar(props) {
             {loggedIn ?
             <>
                 <ul className={navMenuOpen ? 'nav open-menu':'nav'} id={darkMode ? 'darkModeNav' : ''}>
-                <li onClick={() => navigate('/')}>Play</li>
-                <li onClick={() => navigate(`/profile/${userData.username}`)}>Profile</li>
-                <li onClick={() => navigate('/friends')}>Friends</li>
+                <li onClick={() => Navigate('/')}>Play</li>
+                <li onClick={() => Navigate(`/profile/${userData.username}`)}>Profile</li>
+                <li onClick={() => Navigate('/friends')}>Friends</li>
                 <li onClick={Logout}>Logout</li>
                 
                 <div className='darkModeToggleSwitch'>

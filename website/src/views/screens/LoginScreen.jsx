@@ -4,6 +4,7 @@ import InputField from '../components/InputField';
 import '../../styles/Form.css'
 import { Link } from 'react-router-dom';
 import { ApplicationContext } from '../../context/ApplicationContext';
+import { FormButton } from '../components/Button';
 
 export default function LoginScreen(props) {
     const [username, setUsername] = useState('')
@@ -42,7 +43,7 @@ export default function LoginScreen(props) {
                     value={username}
                     required={true}
                     warningMessage={username !== '' ? 'Cannot contain special characters or exceed a length of 15.' : 'You must enter a username.'}
-                    maxLength={30}
+                    maxLength={15}
                     regex={inputRegex}
                     onChange={(value) => setUsername(value)}
                     onValidityChange={valid => setValidUsername(valid)}
@@ -62,7 +63,7 @@ export default function LoginScreen(props) {
                 </div>
 
                 <div className='horizontal-flex-center-spread'>
-                    <button className='formButton' onClick={TryLogin}>Login</button>
+                    <FormButton value='Login' onPush={TryLogin} />
                 </div>
             </div>
         </div>

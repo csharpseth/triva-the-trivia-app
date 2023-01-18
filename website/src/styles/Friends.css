@@ -1,0 +1,55 @@
+.friendsList {
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: flex-start;
+
+    width: 60%;
+}
+
+.profileItem {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+    background-color: var(--foregroundColor);
+    border: 1pt solid var(--fieldBorder);
+    border-radius: 10pt;
+
+    padding: 10pt;
+    margin-bottom: 10pt;
+
+    width: 100%;
+}
+
+.profileAvatar {
+    width: 100pt;
+    height: 100pt;
+    border-radius: 50pt;
+    margin: 0;
+    padding: 1pt;
+    border: none;
+    align-self: flex-start;
+}
+
+.profileData {
+    display: flex;
+    flex: 1;
+
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.profileName {
+    font-size: 1.5rem;
+    padding: 0;
+    margin-bottom: 10pt;
+}
+
+.profileStat {
+    font-size: 1rem;
+    margin-right: 10pt;
+}

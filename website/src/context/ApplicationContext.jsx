@@ -6,6 +6,7 @@ import axios from "axios";
 
 import { API_URL } from '../IGNORE/URLs'
 
+
 export const ApplicationContext = createContext()
 
 export const ApplicationProvider = ({ children }) => {
@@ -18,6 +19,14 @@ export const ApplicationProvider = ({ children }) => {
 
     const [userData, setUserData] = useState()
     const [loggedIn, setLoggedIn] = useState(false)
+
+    const [notification, setNotification] = useState({
+        active: false,
+        body: '',
+        options: [],
+        onClick: undefined,
+        onClose: undefined
+    })
     
     function Loading(active) {
         if(active) {
@@ -92,9 +101,9 @@ export const ApplicationProvider = ({ children }) => {
         })
     }
 
-    function Register(firstName, lastName, username, password) {
+    function Register(name, username, password) {
         Loading(true)
-        axios.post(`${API_URL}/users/register`, { firstName, lastName, username, password })
+        axios.post(`${API_URL}/users/register`, { name, username, password })
         .then(res => {
             if(res.data.success === true) {
                 setUserData(res.data.user)
@@ -112,9 +121,9 @@ export const ApplicationProvider = ({ children }) => {
         })
     }
 
-    function EditProfile(firstName, lastName, username, password) {
+    function EditProfile(name, username, password) {
         Loading(true)
-        axios.post(`${API_URL}/users/${userData.username}/edit`, { firstName, lastName, username, oldUser: userData.username, password })
+        axios.post(`${API_URL}/users/${userData.username}/edit`, { name, username, oldUser: userData.username, password })
         .then(res => {
             if(res.data.success === true) {
                 setUserData(res.data.user)
@@ -132,6 +141,37 @@ export const ApplicationProvider = ({ children }) => {
         })
     }
 
+    function CloseNotification() {
+        let temp = notification
+        temp.active = false
+        setNotification(temp)
+    }
+
+    function Notify(body, duration, options, onClick) {
+        setNotification({
+            active: true,
+            body,
+            options,
+            onClick,
+            onClose: CloseNotification
+        })
+
+        setNotification(notification => {
+
+            console.log(notification);
+            return notification
+        })
+
+        if(duration > 0) {
+            setTimeout(CloseNotification, duration)
+        }
+    }
+
+    function Test(index) {
+        console.log(index);
+        CloseNotification()
+    }
+
     useLayoutEffect(() => {
         setDarkMode(cookies.display === 'dark' ? true : false)
         const username = cookies.username
@@ -144,10 +184,26 @@ export const ApplicationProvider = ({ children }) => {
             LoginWithAuth(username, authKey)
         }
 
-    }, [])
+        
 
+    }, [])
+    
     return (
-        <ApplicationContext.Provider value={{ darkMode, isLoading, loggedIn, userData, ToggleDarkMode, Loading, Login, Logout, Register, EditProfile }}>
+        <ApplicationContext.Provider value={{
+            darkMode,
+            isLoading,
+            loggedIn,
+            userData,
+            notification,
+            ToggleDarkMode,
+            Loading,
+            Login,
+            Logout,
+            Register,
+            EditProfile,
+            Notify,
+            CloseNotification
+        }}>
             {children}
         </ApplicationContext.Provider>
     )

@@ -7,7 +7,7 @@
 	--fieldBorder: #CCCCCC;
 	--hoverFontColor: #444444;
 	--fontColor: #222222;
-	--lightFontColor: #EEEEEE;
+	--lightFontColor: #FFFFFF;
 	--dividerColor: #AAAAAA;
 	--backgroundFontColor: #AAAAAA;
 
@@ -74,6 +74,9 @@ body {
 a {
     color: var(--linkColor);
     text-decoration: none;
-	border-bottom: 1pt solid transparent;
     margin: 5pt;
+}
+
+a:hover {
+	filter: brightness(90%);
 }

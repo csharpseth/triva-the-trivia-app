@@ -1,5 +1,4 @@
 import React, { useLayoutEffect, useState } from 'react';
-import { io } from 'socket.io-client'  
 
 import InputField from '../components/InputField';
 
@@ -25,20 +24,7 @@ export default function WebSocketTesting(props) {
         setMessage('')
     }
 
-    useLayoutEffect(() => {
-        if(socket === null) {
-            socket = io('http://localhost:4000')
-
-            socket.on('connect', () => {
-                AppendMessage(`Connect To Server Successfully with ID: ${socket.id}`)
-            })
-            socket.on('receive-message', (msg) => {
-                const temp = messageFeed
-                temp.push(msg)
-                setMessageFeed([...temp])
-            })
-        }
-    }, [])
+    
 
     return (
         <div className='page-container-centered'>

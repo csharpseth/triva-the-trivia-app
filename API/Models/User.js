@@ -3,11 +3,7 @@ const mongoose = require('mongoose');
 const { FriendRequestSchema } = require('../Models/FriendRequest')
 
 const UserSchema = new mongoose.Schema({
-    firstName: {
-        type: String,
-        required: true,
-    },
-    lastName: {
+    name: {
         type: String,
         required: true,
     },
@@ -39,10 +35,13 @@ const UserSchema = new mongoose.Schema({
         min: 0,
     },
     friends: [mongoose.Schema.ObjectId],
-    friendRequestsReceived: [FriendRequestSchema],
-    FriendRequestsSent: [FriendRequestSchema],
+    friendRequestReceived: [FriendRequestSchema],
+    friendRequestSent: [FriendRequestSchema],
     hosted_sessions: [mongoose.Schema.ObjectId],
     connected_sessions: [mongoose.Schema.ObjectId],
+
+    socket_id: String,
+
     authentication: {
         loggedIn: {
             type: Boolean,

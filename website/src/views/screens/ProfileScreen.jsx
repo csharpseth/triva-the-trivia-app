@@ -58,9 +58,9 @@ export default function ProfileScreen(props) {
                 
                 <div className='profileData' id={darkMode ? 'profileDataDark' : ''}>
                     <div className="profileDataHeader">
-                        <h1 className='profileName'>{profileData.firstName} {profileData.lastName}</h1>
+                        <h1 className='profileName'>{profileData.name}</h1>
                         {isLocalProfile ?
-                        <div className="editProfileButton" id={darkMode ? 'profileHeadingDark' : ''} onClick={() => setEditProfile(true)}>Edit Profile</div>
+                        <div className="editProfileButton" id={darkMode ? 'profileHeadingDark' : ''} onClick={() => setEditProfile(true)}>Edit</div>
                         :
                         <>
                         <span className='profileInteractionButton' onClick={() => setProfileInteractionOpen(!profileInteractionOpen)}>{profileInteractionOpen?'-':'+'}</span>

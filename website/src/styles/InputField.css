@@ -4,7 +4,7 @@
     width: 300pt;
     margin: 5pt;
     margin-top: 12pt;
-    margin-bottom: 12pt;
+    margin-bottom: 20pt;
 }
 
 .inputField h3 {
@@ -98,3 +98,13 @@
     color: var(--fontColorDark)
 }
 
+@media only screen and (max-width: 900px) {
+    .inputField {
+        width: 230pt;
+        margin-bottom: 25pt;
+    }
+
+    .revealButton {
+        font-size: 1rem;
+    }
+}
