@@ -198,6 +198,30 @@
     background-color: var(--dividerColorDark);
 }
 
+.dark {
+    background-color: var(--foregroundColorDark);
+    border-color: var(--fieldBorderDark);
+	color: var(--fontColorDark)
+}
+
+.darkField {
+    background-color: var(--fieldBackgroundDark);
+    border-color: var(--fieldBorderDark);
+	color: var(--fontColorDark)
+}
+
+#dark {
+    background-color: var(--foregroundColorDark);
+    border-color: var(--fieldBorderDark);
+	color: var(--fontColorDark)
+}
+
+#darkField {
+    background-color: var(--fieldBackgroundDark);
+    border-color: var(--fieldBorderDark);
+	color: var(--fontColorDark)
+}
+
 @media only screen and (max-width: 1300px) {
     .app-pages-container {
         width: 90vw;

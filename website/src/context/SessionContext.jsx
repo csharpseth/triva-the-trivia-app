@@ -6,6 +6,7 @@ import axios from "axios";
 
 import { API_URL } from '../IGNORE/URLs'
 import { ApplicationContext } from "./ApplicationContext";
+import { SocketContext } from "./SocketContext";
 
 export const SessionContext = createContext()
 
@@ -16,6 +17,7 @@ export const SessionProvider = ({ children }) => {
 
     const [topics, setTopics] = useState([])
     const { userData, Loading } = useContext(ApplicationContext)
+    const { EstablishSocketRoom } = useContext(SocketContext)
 
     function GoToActiveSession() {
         navigate('/session')
@@ -26,6 +28,7 @@ export const SessionProvider = ({ children }) => {
         axios.post(`${API_URL}/session/create`, { title, topic, username })
         .then(res => {
             if(res.data.success === true) {
+                EstablishSocketRoom(res.data.session.key)
                 setActiveSession(res.data.session)
                 setActiveSessionHosted(true)
                 navigate('/session')
@@ -42,6 +45,7 @@ export const SessionProvider = ({ children }) => {
         axios.post(`${API_URL}/session/join`, { username: userData.username, key: sessionKey })
         .then(res => {
             if(res.data.success === true) {
+                EstablishSocketRoom(res.data.session.key)
                 setActiveSession(res.data.session)
                 setActiveSessionHosted(false)
                 navigate('/session')

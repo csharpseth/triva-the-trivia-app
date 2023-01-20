@@ -24,7 +24,6 @@ export const ApplicationProvider = ({ children }) => {
         active: false,
         body: '',
         options: [],
-        onClick: undefined,
         onClose: undefined
     })
     
@@ -32,7 +31,7 @@ export const ApplicationProvider = ({ children }) => {
         if(active) {
             setIsLoading(true)
         }else{
-            setTimeout(() => setIsLoading(false), 500)
+            setTimeout(() => setIsLoading(false), 200)
         }
     }
 
@@ -116,7 +115,7 @@ export const ApplicationProvider = ({ children }) => {
             }
             Loading(false)
         }).catch(e => {
-            console.log(`Login Error: ${e}`)
+            console.log(`Registration Error: ${e}`)
             Loading(false)
         })
     }
@@ -136,7 +135,82 @@ export const ApplicationProvider = ({ children }) => {
             }
             Loading(false)
         }).catch(e => {
-            console.log(`Login Error: ${e}`)
+            console.log(`Edit Profile Error: ${e}`)
+            Loading(false)
+        })
+    }
+
+    function FriendRequest(userToAddID, callback) {
+        Loading(true)
+        axios.post(`${API_URL}/friends/request`, { userID: userData._id, authKey: userData.authKey, userToAddID })
+        .then(res => {
+            Loading(false)
+            if(res.data.success === true) {
+                callback ? callback() : ''
+            }
+        })
+        .catch(e => {
+            console.log('Friend Request Error: ' + e)
+            Loading(false)
+        })
+    }
+
+    function AcceptFriend(userToAddID, callback) {
+        Loading(true)
+        axios.post(`${API_URL}/friends/accept`, { userID: userData._id, authKey: userData.authKey, userToAddID })
+        .then(res => {
+            Loading(false)
+            if(res.data.success === true) {
+                callback ? callback() : ''
+            }
+        })
+        .catch(e => {
+            console.log('Add Friend Error: ' + e)
+            Loading(false)
+        })
+    }
+
+    function DeclineFriendRequest(userToDeclineID, callback) {
+        Loading(true)
+        axios.post(`${API_URL}/friends/decline`, { userID: userData._id, authKey: userData.authKey, userToDeclineID })
+        .then(res => {
+            Loading(false)
+            if(res.data.success === true) {
+                callback ? callback() : ''
+            }
+        })
+        .catch(e => {
+            console.log('Decline Friend Request Error: ' + e)
+            Loading(false)
+        })
+    }
+
+    function CancelFriendRequest(userToCancelID, callback) {
+        Loading(true)
+        axios.post(`${API_URL}/friends/cancel`, { userID: userData._id, authKey: userData.authKey, userToCancelID })
+        .then(res => {
+            Loading(false)
+            if(res.data.success === true) {
+                callback ? callback() : ''
+            }
+        })
+        .catch(e => {
+            console.log('Cancel Request Error: ' + e)
+            Loading(false)
+        })
+    }
+
+    function RemoveFriend(userToRemoveID, callback) {
+        Loading(true)
+        axios.post(`${API_URL}/friends/remove`, { userID: userData._id, authKey: userData.authKey, userToRemoveID })
+        .then(res => {
+            Loading(false)
+            if(res.data.success === true) {
+                callback ? callback() : ''
+            }
+        })
+        .catch(e => {
+            console.log('Remove Friend Error: ' + e)
             Loading(false)
         })
     }
@@ -147,19 +221,12 @@ export const ApplicationProvider = ({ children }) => {
         setNotification(temp)
     }
 
-    function Notify(body, duration, options, onClick) {
+    function Notify(body, duration = 0, options = [], onClick = undefined) {
         setNotification({
             active: true,
             body,
             options,
-            onClick,
             onClose: CloseNotification
-        })
-
-        setNotification(notification => {
-
-            console.log(notification);
-            return notification
         })
 
         if(duration > 0) {
@@ -167,10 +234,6 @@ export const ApplicationProvider = ({ children }) => {
         }
     }
 
-    function Test(index) {
-        console.log(index);
-        CloseNotification()
-    }
 
     useLayoutEffect(() => {
         setDarkMode(cookies.display === 'dark' ? true : false)
@@ -183,9 +246,6 @@ export const ApplicationProvider = ({ children }) => {
         {
             LoginWithAuth(username, authKey)
         }
-
-        
-
     }, [])
     
     return (
@@ -196,11 +256,17 @@ export const ApplicationProvider = ({ children }) => {
             userData,
             notification,
             ToggleDarkMode,
+            navigate,
             Loading,
             Login,
             Logout,
             Register,
             EditProfile,
+            FriendRequest,
+            AcceptFriend,
+            DeclineFriendRequest,
+            CancelFriendRequest,
+            RemoveFriend,
             Notify,
             CloseNotification
         }}>

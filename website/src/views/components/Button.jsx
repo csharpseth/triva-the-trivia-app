@@ -12,6 +12,8 @@ function GetStylingConfig(styling) {
             return 'buttonBackground buttonPositive'
         case('negative'):
             return 'buttonBackground buttonNegative'
+        case('disabled'):
+            return 'buttonBackground buttonDisabled'
         default:
             return 'buttonBackground'
     }
@@ -19,10 +21,10 @@ function GetStylingConfig(styling) {
 
 function InputButton(props) {
 
-    const { value, styling, onPush } = props
+    const { value, styling, onPush, tabIndex } = props
 
     return (
-        <div className='button inputButton' onClick={onPush}>
+        <div className='button inputButton' tabIndex={tabIndex} onClick={onPush}>
             <span className='buttonText noselect'>{value}</span>
             <div className={GetStylingConfig(styling)}></div>
         </div>
@@ -31,10 +33,10 @@ function InputButton(props) {
 
 function FormButton(props) {
 
-    const { value, styling, onPush } = props
+    const { value, styling, onPush, tabIndex } = props
 
     return (
-        <div className='button formButton' onClick={onPush}>
+        <div className='button formButton' tabIndex={tabIndex} onClick={onPush}>
             <span className='buttonText noselect'>{value}</span>
             <div className={GetStylingConfig(styling)}></div>
         </div>
@@ -43,10 +45,10 @@ function FormButton(props) {
 
 function FittedButton(props) {
 
-    const { value, styling, onPush } = props
+    const { value, styling, onPush, tabIndex } = props
 
     return (
-        <div className='button fittedButton' onClick={onPush}>
+        <div className='button fittedButton' tabIndex={tabIndex} onClick={onPush}>
             <span className='buttonText noselect'>{value}</span>
             <div className={GetStylingConfig(styling)}></div>
         </div>

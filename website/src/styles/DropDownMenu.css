@@ -73,7 +73,12 @@
     align-items: flex-start;
     z-index: 9;
 
+    border-color: var(--fieldBorder);
+	background-color: var(--fieldBackground);
+
     scrollbar-width: none;
+
+    opacity: 0;
 
     transition: 200ms;
 }
@@ -94,15 +99,19 @@
     background-color: var(--fieldBackground);
 }
 
-.selectionElement:hover {
+.dropDownMenu .selectionElement:hover {
     filter: brightness(90%);
 }
 
-#dropDownMenuOpen {
-    max-height: 100pt;
-    border-color: var(--fieldBorder);
-	background-color: var(--fieldBackground);
+.dropDownMenu #darkField:hover {
+    filter: brightness(150%);
 }
+
+.dropDownMenuOpen {
+    max-height: 100pt;
+    opacity: 1;
+}
+
 
 @media only screen and (max-width: 900px) {
     .dropDownMenuFieldBackground {

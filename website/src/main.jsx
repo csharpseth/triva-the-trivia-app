@@ -7,16 +7,13 @@ import { BrowserRouter } from 'react-router-dom'
 import './styles/index.css'
 import { ApplicationProvider } from './context/ApplicationContext'
 import { CookiesProvider } from 'react-cookie'
-import { SessionProvider } from './context/SessionContext'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
 	<React.StrictMode>
 		<CookiesProvider>
 			<BrowserRouter>
 				<ApplicationProvider>
-					<SessionProvider>
-						<App />
-					</SessionProvider>
+					<App />
 				</ApplicationProvider>
 			</BrowserRouter>
 		</CookiesProvider>

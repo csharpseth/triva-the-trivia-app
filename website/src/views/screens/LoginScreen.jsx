@@ -45,6 +45,7 @@ export default function LoginScreen(props) {
                     warningMessage={username !== '' ? 'Cannot contain special characters or exceed a length of 15.' : 'You must enter a username.'}
                     maxLength={15}
                     regex={inputRegex}
+                    tabIndex={0}
                     onChange={(value) => setUsername(value)}
                     onValidityChange={valid => setValidUsername(valid)}
                     />
@@ -54,6 +55,7 @@ export default function LoginScreen(props) {
                     required={true}
                     secure={true}
                     warningMessage={'You must enter a password.'}
+                    tabIndex={0}
                     onChange={(value) => setPassword(value)}
                     onValidityChange={valid => setValidPassword(valid)}
                     />
@@ -63,7 +65,7 @@ export default function LoginScreen(props) {
                 </div>
 
                 <div className='horizontal-flex-center-spread'>
-                    <FormButton value='Login' onPush={TryLogin} />
+                    <FormButton value='Login' onPush={TryLogin} tabIndex={0} />
                 </div>
             </div>
         </div>

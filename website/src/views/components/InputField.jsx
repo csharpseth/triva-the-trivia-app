@@ -6,7 +6,7 @@ import '../../styles/InputField.css'
 
 export default function InputField(props) {
     
-    const { title, value, placeholder, warningMessage, warn, secure, regex, maxLength, required, onChange, onValidityChange } = props
+    const { title, value, placeholder, warningMessage, warn, secure, regex, maxLength, required, tabIndex, onChange, onValidityChange } = props
 
     const { darkMode } = useContext(ApplicationContext)
     const [show, setShow] = useState(!secure)
@@ -53,9 +53,17 @@ export default function InputField(props) {
         <div className='inputField' id={darkMode ? 'inputFieldDark' : ''}>
             <h3>{title}</h3>
             <div className={warn || internalWarn ? 'field invalidField':'field'} id={darkMode ? 'fieldDark' : ''}>
-            <input className='input' id={darkMode ? 'inputDark':''} placeholder={placeholder} onChange={HandleValueChange} value={value} type={secure && show === false ? 'password' : 'text'}></input>
+            <input
+                className='input'
+                id={darkMode ? 'inputDark':''}
+                tabIndex={tabIndex}
+                placeholder={placeholder}
+                onChange={HandleValueChange}
+                value={value}
+                type={secure && show === false ? 'password' : 'text'}
+            />
             {secure ?
-            <button className='revealButton' id={darkMode ? 'revealButtonDark' : ''} onClick={() => { setShow(!show); }}>
+            <button className='revealButton' id={darkMode ? 'revealButtonDark' : ''} tabIndex={-1} onClick={() => { setShow(!show); }}>
                 {show ?
                     'hide'
                     :

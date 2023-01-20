@@ -42,6 +42,7 @@ export default function RegistrationScreen(props) {
                     required={true}
                     maxLength={30}
                     regex={NO_SPEC_CHAR_ALLOW_SPACE}
+                    tabIndex={0}
                     onValidityChange={valid => setValidFirstName(valid)}
                     onChange={value => setName(value)}
                     />
@@ -51,6 +52,7 @@ export default function RegistrationScreen(props) {
                     required={true}
                     maxLength={15}
                     regex={NO_SPEC_CHAR}
+                    tabIndex={0}
                     onValidityChange={valid => setValidUsername(valid)}
                     onChange={value => setUsername(value)}
                     />
@@ -59,6 +61,7 @@ export default function RegistrationScreen(props) {
                     warningMessage={password !== '' ? 'Must be at least 8 characters long.' : 'You must enter a password.'}
                     required={true}
                     secure={true}
+                    tabIndex={0}
                     onValidityChange={valid => setValidPassword(valid)}
                     onChange={value => setPassword(value)}
                     />
@@ -68,6 +71,7 @@ export default function RegistrationScreen(props) {
                     warn={!validConfirmPassword}
                     required={true}
                     secure={true}
+                    tabIndex={0}
                     onValidityChange={valid => setValidConfirmPassword(valid)}
                     onChange={value => setConfirmPassword(value)}
                     />
@@ -77,7 +81,7 @@ export default function RegistrationScreen(props) {
                 </div>
 
                 <div className='horizontal-flex-center-spread'>
-                    <FormButton value='Register' onPush={TryRegister} />
+                    <FormButton value='Register' tabIndex={0} onPush={TryRegister} />
                 </div>
             </div>
         </div>

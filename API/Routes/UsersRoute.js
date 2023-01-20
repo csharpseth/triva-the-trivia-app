@@ -10,6 +10,8 @@ const axios = require('axios')
 const mongoose = require('mongoose')
 
 const User = require('../Models/User')
+const { FriendRequest } = require('../Models/FriendRequest')
+const { DisconnectSocket } = require('../websocket')
 
 
 const saltRounds = 8
@@ -18,6 +20,7 @@ const ConstructAuthenticatedResponseUser = (user) => {
     let resUser = {
         success: true,
         user: {
+            _id: user._id,
             name: user.name,
             username: user.username,
             score: user.score,
@@ -34,6 +37,7 @@ const ConstructResponseUser = (user) => {
     let resUser = {
         success: true,
         user: {
+            _id: user._id,
             name: user.name,
             username: user.username,
             score: user.score,
@@ -45,10 +49,45 @@ const ConstructResponseUser = (user) => {
     return resUser
 }
 
-const SearchUsers = async(query) => {
+const determineRelationship = async (primary, secondary) => {
+    const request = await FriendRequest.findOne({ $or: [{ sender: primary._id, recipient: secondary._id }, { sender: secondary._id, recipient: primary._id }] })
+    if(!request) {
+        for (let i = 0; i < primary.friends.length; i++) {
+            const friend = primary.friends[i];
+            if(String(friend) === String(secondary._id)) {
+                return 'friend'
+            }
+        }
+
+        return 'none'
+    }
+
+    if(String(request.sender) === String(primary._id)) return 'pending'
+
+    return 'waiting'
+}
+
+const SearchUsers = async(query, exclude) => {
     const reg = new RegExp(query, 'i')
     let results = await User.find({$or: [{name: {$regex: reg}}, {username: {$regex: reg}}]}, 'name username friends score')
-    return results
+    const userSearching = await User.findById(exclude)
+    let final = []
+    for (let i = 0; i < results.length; i++) {
+        const user = results[i];
+        if(String(user._id) === String(exclude)) continue
+
+        relationship = await determineRelationship(userSearching, user)
+
+        final.push({
+            _id: user._id,
+            name: user.name,
+            username: user.username,
+            score: user.score,
+            friends: user.friends,
+            relationship
+        })
+    }
+    return final
 }
 
 const downloadAvatarImage = async(username) => {
@@ -62,10 +101,7 @@ const downloadAvatarImage = async(username) => {
             responseType: 'stream',
         });
 
-        const write = response.data.pipe(fs.createWriteStream(localPath))
-        write.on('finish', () => {
-            console.log('downloaded file!')
-        })
+        const write = await response.data.pipe(fs.createWriteStream(localPath))
     } catch (error) {
         console.log(error)
     }
@@ -96,8 +132,25 @@ router.get('/:username', async (req, res) => {
     }
 })
 
+router.get('/socket/:userId', async (req, res) => {
+    const userId = req.params.userId
+
+    try {
+        const user = await User.findById(userId)
+        if(user === undefined || user === null) {
+            res.json({ success: false, message: 'No User With That ID Found.' })
+            return
+        }
+
+        res.json({ success: true, socket_id: user.socket_id, user: ConstructResponseUser(user) })
+    } catch (error) {
+        console.log(error.message)
+        res.json({ success: false, message: error.message })
+    }
+})
+
 router.post('/findall', async (req, res) => {
-    let temp = await SearchUsers(req.body.query)
+    let temp = await SearchUsers(req.body.query, req.body.userID)
     res.json(temp)
 })
 
@@ -256,8 +309,11 @@ router.post('/logout', async (req, res) => {
             return
         }
 
+        DisconnectSocket(user.socket_id)
+
         user.authentication.loggedIn = false
         user.authentication.key = ''
+        user.socket_id = ''
 
         await user.save()
 

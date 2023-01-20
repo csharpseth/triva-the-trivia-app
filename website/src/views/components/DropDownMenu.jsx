@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { ApplicationContext } from '../../context/ApplicationContext';
 
 import '../../styles/DropDownMenu.css'
 
 export default function DropDownMenu(props) {
 
     const { value, title, options, onChange } = props
+
+    const { darkMode } = useContext(ApplicationContext)
 
     const [menuOpen, setMenuOpen] = useState(false)
 
@@ -20,14 +23,14 @@ export default function DropDownMenu(props) {
         <div className='dropDownMenuField'>
             <h3>{title}</h3>
 
-            <div className="dropDownMenu" id={menuOpen?'dropDownMenuOpen':''}>
-                {options.map((opt, index) => <span key={index} className='selectionElement' onClick={() => SetSelection(index)}>{opt}</span>)}
+            <div className={menuOpen ? 'dropDownMenu dropDownMenuOpen' : 'dropDownMenu'} id={darkMode ? 'darkField' : ''}>
+                {options.map((opt, index) => <span key={index} className='selectionElement' id={darkMode ? 'darkField' : ''} onClick={() => SetSelection(index)}>{opt}</span>)}
             </div>
             
             <div className='selectionBody' onClick={() => setMenuOpen(!menuOpen)}>
-            <span className='selectionText'>{value}</span>
+            <span className='selectionText' id={darkMode ? 'darkModeText' : ''}>{value}</span>
             <span className="dropDownIcon">^</span>
-            <div className='dropDownMenuFieldBackground'></div>
+            <div className='dropDownMenuFieldBackground' id={darkMode ? 'darkField' : ''}></div>
             </div>
         </div>
     );

@@ -14,6 +14,10 @@
     cursor: pointer;
 }
 
+.button:focus {
+    outline: 1px dashed var(--selectColor);
+}
+
 .buttonBackground {
     position: absolute;
     background-color: var(--accentColor);
@@ -42,6 +46,14 @@
 
 .buttonPositive {
     background-color: var(--positiveColor);
+}
+
+.buttonDisabled {
+    background-color: var(--disabledColor);
+}
+
+.button:hover .buttonDisabled {
+    filter: brightness(100%);
 }
 
 /* INPUT BUTTON */

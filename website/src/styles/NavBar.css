@@ -10,8 +10,10 @@
     padding: 25pt;
     padding-left: 0;
     padding-right: 0;
+
     background-color: var(--foregroundColor);
     border-bottom: 1pt solid var(--fieldBorder);
+
     z-index: 10;
 }
 
@@ -22,33 +24,50 @@
     margin: 0;
     left: 20pt;
     cursor: pointer;
+    z-index: 11;
 }
 
 .nav {
     display: flex;
-    flex: 1;
     flex-direction: row;
+}
+
+.navItem {
+    position: relative;
+    display: flex;
     justify-content: center;
     align-items: center;
-}
 
-.nav li {
-    text-decoration: none;
-    list-style: none;
-    padding: 10pt;
-    margin: 5pt;
-    width: 60pt;
-    text-align: center;
-    cursor: pointer;
+    overflow: hidden;
     border-radius: 10pt;
+    cursor: pointer;
+    padding: 10pt;
+    margin: 10pt;
+
+    width: 70pt;
 }
 
-.nav li:hover {
-    background-color: var(--backgroundColor);
+.navItemText {
+    color: var(--fontColor);
+    z-index: 0;
+}
+
+.navItemBackground {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+
+    background-color: var(--navItemColor);
+}
+
+.navItem:hover .navItemBackground {
+    filter: brightness(90%);
 }
 
 .darkModeToggleSwitch {
     position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     right: 20pt;
     display: flex;
     flex-direction: column;
@@ -60,17 +79,32 @@
     font-size: 0.8rem;
 }
 
-#darkModeNav li {
+#darkModeNav .navItem .navItemText {
     color: var(--fontColorDark)
 }
 
-#darkModeNav li:hover {
-    background-color: var(--backgroundColorDark);
+#darkModeNav .navItem .navItemBackground {
+    background-color: var(--navItemColorDark);
 }
 
-.brandBarDark {
-    background-color: var(--foregroundColorDark);
-    border-color: var(--fieldBorderDark);
+#darkModeNav .navItem:hover .navItemBackground {
+    filter: brightness(60%);
+}
+
+#darkModeNav .navItem:hover #active {
+    filter: brightness(50%);
+}
+
+#darkModeNav #active {
+    filter: brightness(70%);
+}
+
+#active {
+    filter: brightness(90%);
+}
+
+.navItem:hover #active {
+    filter: brightness(80%);
 }
 
 @media only screen and (max-width: 900px) {

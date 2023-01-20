@@ -1,6 +1,4 @@
 import React from 'react';
-import { useState } from 'react';
-import { useEffect } from 'react';
 import { useContext } from 'react';
 import { ApplicationContext } from '../../context/ApplicationContext';
 
@@ -11,18 +9,13 @@ import CloseButton from './CloseButton';
 export default function Notification() {
 
     const { notification } = useContext(ApplicationContext)
-    const [options, setOptions] = useState([])
-
-    useEffect(() => {
-        setOptions([{ value: 'Test', action: (test) => { console.log(test) } }])
-    }, [notification])
 
     return (
         <div className='notification' id={notification.active ? 'notificationOpen':''}>
             <CloseButton onClose={notification.onClose} />
             <p>{notification.body}</p>
             <div className="horizontal-flex-center-spread notificationOptions">
-                {options.map((opt, index) => 
+                {notification.options.map((opt, index) => 
                     <FittedButton
                         key={index}
                         value={opt.value}

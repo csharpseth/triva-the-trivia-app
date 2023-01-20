@@ -2,21 +2,29 @@
     position: fixed;
     bottom: 10pt;
     left: 50%;
-    transform: translate(-50%, 120%);
+    transform: translate(-50%, 150%);
 
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
 
-    height: 100pt;
-    width: 300pt;
+    min-height: 75pt;
+    min-width: 210pt;
 
     background-color: var(--foregroundColor);
     border: 1pt solid var(--fieldBorder);
     border-radius: 10pt;
 
+    padding: 15pt;
+    padding-top: 10pt;
+    padding-bottom: 25pt;
+}
+
+.notification p {
     padding: 10pt;
+    padding-top: 5pt;
+    padding-bottom: 5pt;
 }
 
 .notification h1 {

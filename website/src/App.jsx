@@ -15,6 +15,8 @@ import Notification from './views/components/Notification'
 import NoMatchScreen from './views/screens/404Screen'
 
 import { SocketProvider } from './context/SocketContext'
+import { SessionProvider } from './context/SessionContext'
+import { FriendsProvider } from './context/FriendsContext'
 
 function App() {
 	const { darkMode, isLoading, loggedIn, userData } = useContext(ApplicationContext)
@@ -26,7 +28,9 @@ function App() {
 				<NavBar />
 					{userData !== undefined ? 
 					<>
+					<FriendsProvider>
 					<SocketProvider>
+					<SessionProvider>
 						<Routes>
 							<Route index path='/' exact element={<HomeScreen />} />
 							<Route path='/profile/:user' exact element={<ProfileScreen />}/>
@@ -34,7 +38,9 @@ function App() {
 							<Route path='/session' exact element={<SessionScreen />} />
 							<Route path='*' element={<NoMatchScreen />} />
 						</Routes>
+					</SessionProvider>
 					</SocketProvider>
+					</FriendsProvider>
 					</>
 					:
 					<>
