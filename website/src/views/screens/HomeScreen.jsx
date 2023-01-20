@@ -4,28 +4,27 @@ import InputField from '../components/InputField'
 import {InputButton} from '../components/Button';
 
 import '../../styles/Home.css'
-import Divider from '../components/Divider';
 import DropDownMenu from '../components/DropDownMenu';
 import { SessionContext } from '../../context/SessionContext';
-import ModalWindow from '../components/ModalWindow';
+import UserInviteOverlay from '../components/UserInviteOverlay';
 
 export default function HomeScreen(props) {
 
-    const { userData, darkMode } = useContext(ApplicationContext)
-    const { topics, activeSession, CreateSession, JoinSession, GoToActiveSession } = useContext(SessionContext)
+    const { darkMode } = useContext(ApplicationContext)
+    const { topics, difficulties, activeSession, CreateSession, JoinSession, GoToActiveSession } = useContext(SessionContext)
 
     const [createFormActive, setCreateFormActive] = useState(false)
-    const [joinFormActive, setJoinFormActive] = useState(false)
 
     const [joinKey, setJoinKey] = useState('')
 
     const [createFormTitle, setCreateFormTitle] = useState('')
-    const [createFormTopic, setCreateFormTopic] = useState('')
+    const [createFormTopic, setCreateFormTopic] = useState(0)
+    const [createFormDifficulty, setCreateFormDifficulty] = useState(0)
 
     function SubmitCreateSession() {
         if(createFormTitle === '' || createFormTopic === '') return
 
-        CreateSession(createFormTitle, createFormTopic, userData.username)
+        CreateSession(createFormTitle, createFormTopic, createFormDifficulty)
     }
 
     function SubmitJoinSession() {
@@ -36,6 +35,7 @@ export default function HomeScreen(props) {
 
     return (
         <>
+        <UserInviteOverlay />
         <div className={createFormActive ? 'home-page-container fadeOut' : 'home-page-container fadeIn'}>
             <div className="section joinSection" id={darkMode ? 'sectionDark' : ''}>
                 <h1>Join Game</h1>
@@ -75,8 +75,14 @@ export default function HomeScreen(props) {
                 <DropDownMenu
                     title='Topic'
                     options={topics}
-                    value={createFormTopic}
-                    onChange={value => setCreateFormTopic(value)}
+                    value={topics[createFormTopic]}
+                    onChange={(value, index) => setCreateFormTopic(index)}
+                />
+                <DropDownMenu
+                    title='Difficulty'
+                    options={difficulties}
+                    value={difficulties[createFormDifficulty]}
+                    onChange={(value, index) => setCreateFormDifficulty(index)}
                 />
                 
                 <div className="horizontal-flex-center">

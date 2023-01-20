@@ -83,7 +83,7 @@ export const ApplicationProvider = ({ children }) => {
 
     function Logout() {
         Loading(true)
-        axios.post(`${API_URL}/users/logout`, userData)
+        axios.post(`${API_URL}/users/logout`, { userID: userData._id, authKey: userData.authKey })
         .then(res => {
             if(res.data.success === false) {
                 console.log(res.data.message)
@@ -122,7 +122,7 @@ export const ApplicationProvider = ({ children }) => {
 
     function EditProfile(name, username, password) {
         Loading(true)
-        axios.post(`${API_URL}/users/${userData.username}/edit`, { name, username, oldUser: userData.username, password })
+        axios.post(`${API_URL}/users/${userData.username}/edit`, { userID: userData._id, name, username, oldUser: userData.username, password })
         .then(res => {
             if(res.data.success === true) {
                 setUserData(res.data.user)
@@ -136,81 +136,6 @@ export const ApplicationProvider = ({ children }) => {
             Loading(false)
         }).catch(e => {
             console.log(`Edit Profile Error: ${e}`)
-            Loading(false)
-        })
-    }
-
-    function FriendRequest(userToAddID, callback) {
-        Loading(true)
-        axios.post(`${API_URL}/friends/request`, { userID: userData._id, authKey: userData.authKey, userToAddID })
-        .then(res => {
-            Loading(false)
-            if(res.data.success === true) {
-                callback ? callback() : ''
-            }
-        })
-        .catch(e => {
-            console.log('Friend Request Error: ' + e)
-            Loading(false)
-        })
-    }
-
-    function AcceptFriend(userToAddID, callback) {
-        Loading(true)
-        axios.post(`${API_URL}/friends/accept`, { userID: userData._id, authKey: userData.authKey, userToAddID })
-        .then(res => {
-            Loading(false)
-            if(res.data.success === true) {
-                callback ? callback() : ''
-            }
-        })
-        .catch(e => {
-            console.log('Add Friend Error: ' + e)
-            Loading(false)
-        })
-    }
-
-    function DeclineFriendRequest(userToDeclineID, callback) {
-        Loading(true)
-        axios.post(`${API_URL}/friends/decline`, { userID: userData._id, authKey: userData.authKey, userToDeclineID })
-        .then(res => {
-            Loading(false)
-            if(res.data.success === true) {
-                callback ? callback() : ''
-            }
-        })
-        .catch(e => {
-            console.log('Decline Friend Request Error: ' + e)
-            Loading(false)
-        })
-    }
-
-    function CancelFriendRequest(userToCancelID, callback) {
-        Loading(true)
-        axios.post(`${API_URL}/friends/cancel`, { userID: userData._id, authKey: userData.authKey, userToCancelID })
-        .then(res => {
-            Loading(false)
-            if(res.data.success === true) {
-                callback ? callback() : ''
-            }
-        })
-        .catch(e => {
-            console.log('Cancel Request Error: ' + e)
-            Loading(false)
-        })
-    }
-
-    function RemoveFriend(userToRemoveID, callback) {
-        Loading(true)
-        axios.post(`${API_URL}/friends/remove`, { userID: userData._id, authKey: userData.authKey, userToRemoveID })
-        .then(res => {
-            Loading(false)
-            if(res.data.success === true) {
-                callback ? callback() : ''
-            }
-        })
-        .catch(e => {
-            console.log('Remove Friend Error: ' + e)
             Loading(false)
         })
     }
@@ -262,11 +187,6 @@ export const ApplicationProvider = ({ children }) => {
             Logout,
             Register,
             EditProfile,
-            FriendRequest,
-            AcceptFriend,
-            DeclineFriendRequest,
-            CancelFriendRequest,
-            RemoveFriend,
             Notify,
             CloseNotification
         }}>

@@ -1,30 +1,26 @@
 const mongoose = require('mongoose');
 
 const PromptSchema = new mongoose.Schema({
-    prompt: {
+    question: {
         type: String,
         required: true,
     },
-    answer: {
-        type: String,
+    answers: {
+        type: [String],
         required: true,
     },
-    corrrectAnswerScore: {
+    correctAnswers: {
+        type: [Number],
+        required: true,
+    },
+    difficulty: {
         type: Number,
         required: true,
         min: 0,
-        max: 100,
-        default: 100,
-    },
-    incorrrectAnswerScore: {
-        type: Number,
-        required: true,
-        min: -20,
-        max: 20,
-        default: 0,
+        max: 2,
     },
     topic: {
-        type: mongoose.SchemaTypes.ObjectId,
+        type: String,
         required: true
     }
 })

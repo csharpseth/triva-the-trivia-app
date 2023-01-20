@@ -7,6 +7,9 @@ import { API_URL } from '../../IGNORE/URLs';
 
 import '../../styles/Profile.css'
 import EditProfileOverlay from '../components/EditProfileOverlay';
+import Divider from '../components/Divider'
+import CloseButton from '../components/CloseButton';
+import { FittedButton } from '../components/Button';
 
 export default function ProfileScreen(props) {
 
@@ -81,13 +84,48 @@ export default function ProfileScreen(props) {
                     <h3 className='profileMinorStat'>Member Since: {profileData.createdAt}</h3>
                     
                 </div>
+            </div>
 
-                <div className="cornerInteraction">
-
-                </div>
+            <div className='notificationContainer' id={darkMode?'dark':''}>
+                <h1>Notifications</h1>
+                <Divider />
+                <NotificationItem options={[
+                    {
+                        value: 'Test',
+                        style: 'positive',
+                        action: () => { console.log('trst') }
+                    }
+                ]} />
+                <NotificationItem />
+                <NotificationItem />
+                <NotificationItem />
+                <NotificationItem />
             </div>
             </>
             }
         </div>
     );
+}
+
+function NotificationItem(props) {
+
+    const { options } = props
+
+    return (
+        <div className="notificationItem">
+            <CloseButton />
+            <div className="notificationBackground" />
+            <p className='notificationBody'>hello world</p>
+            <div className='notificationOptions'>
+                {options ? options.map((opt, index) => {
+                    return <FittedButton
+                        key={index}
+                        value={opt.value}
+                        styling={opt.style}
+                        onPush={() => opt.action(index)}
+                    />
+                }):''}
+            </div>
+        </div>
+    )
 }

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
-const { FriendRequestSchema } = require('../Models/FriendRequest')
+const { FriendRequestSchema } = require('../Models/FriendRequest');
+const { InviteSchema } = require('./Invite');
 
 const UserSchema = new mongoose.Schema({
     name: {
@@ -37,6 +38,8 @@ const UserSchema = new mongoose.Schema({
     friends: [mongoose.Schema.ObjectId],
     friendRequestReceived: [FriendRequestSchema],
     friendRequestSent: [FriendRequestSchema],
+    invitesReceived: [InviteSchema],
+    invitesSent: [InviteSchema],
     hosted_sessions: [mongoose.Schema.ObjectId],
     connected_sessions: [mongoose.Schema.ObjectId],
 

@@ -16,7 +16,7 @@ mongoose.connect(process.env.DB_URL, {
 const usersRouter = require('./Routes/UsersRoute');
 const friendsRouter = require('./Routes/FriendsRoute')
 const sessionRoute = require('./Routes/SessionRoute');
-const Topics = require('./Data/Topics')
+const { Topics, Difficulties } = require('./Data/ConfigData')
 
 const app = express()
 const port = process.env.PORT | 3000
@@ -30,8 +30,8 @@ app.use('/users', usersRouter)
 app.use('/friends', friendsRouter)
 app.use('/session', sessionRoute)
 
-app.get('/topics', (req, res) => {
-    res.json(Topics)
+app.get('/configdata', (req, res) => {
+    res.json({ topics: Topics, difficulties: Difficulties })
 })
 
 app.listen(port, () => {

@@ -14,13 +14,13 @@ export default function DropDownMenu(props) {
     function SetSelection(index) {
         if(index >= 0 && index < options.length) {
             const newValue = options[index]
-            onChange ? onChange(newValue) : ''
+            onChange ? onChange(newValue, index) : ''
         }
         setMenuOpen(false)
     }
 
     return (
-        <div className='dropDownMenuField'>
+        <div className='dropDownMenuField' id={darkMode ? 'darkText' : ''}>
             <h3>{title}</h3>
 
             <div className={menuOpen ? 'dropDownMenu dropDownMenuOpen' : 'dropDownMenu'} id={darkMode ? 'darkField' : ''}>

@@ -1,6 +1,5 @@
 import { useContext, useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import './styles/App.css'
 import NavBar from './views/components/NavBar'
 import LoginScreen from './views/screens/LoginScreen'
 import RegistrationScreen from './views/screens/RegistrationScreen'
@@ -17,6 +16,9 @@ import NoMatchScreen from './views/screens/404Screen'
 import { SocketProvider } from './context/SocketContext'
 import { SessionProvider } from './context/SessionContext'
 import { FriendsProvider } from './context/FriendsContext'
+
+import './styles/App.css'
+
 
 function App() {
 	const { darkMode, isLoading, loggedIn, userData } = useContext(ApplicationContext)

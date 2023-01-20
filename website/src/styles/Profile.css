@@ -9,6 +9,8 @@
     border: 1pt solid var(--fieldBorder);
     border-radius: 10pt;
 
+    margin-bottom: 10pt;
+
     padding: 10pt;
     width: 100%;
 }
@@ -197,6 +199,65 @@
 
 #profileUsernameDark {
     background-color: var(--backgroundColorDark);
+}
+
+.notificationContainer {
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    background-color: var(--foregroundColor);
+    border: 1pt solid var(--fieldBorder);
+    border-radius: 10pt;
+
+    padding: 10pt;
+    width: 100%;
+}
+
+.notificationContainer h1 {
+    
+}
+
+.notificationContainer .notificationItem {
+    position: relative;
+    width: 100%;
+    height: 30pt;
+    padding: 5pt;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.notificationItem .notificationBackground {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background-color: var(--foregroundColor);
+}
+
+.notificationItem .notificationBody {
+    z-index: 0;
+}
+
+.notificationContainer .notificationItem:nth-child(odd) .notificationBackground {
+    filter: brightness(95%);
+}
+
+.notificationItem .notificationOptions {
+    position: absolute;
+    right: 25pt;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
 }
 
 @media only screen and (max-width: 900px) {

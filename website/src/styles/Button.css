@@ -70,7 +70,6 @@
 /* FITTED BUTTON */
 
 .fittedButton {
-    flex: 1;
     
     min-width: 60pt;
     max-width: 100pt;

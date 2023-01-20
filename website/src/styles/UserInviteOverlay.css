@@ -1,0 +1,13 @@
+.results {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    padding: 10pt;
+    width: 400pt;
+
+    height: 300pt;
+    overflow: hidden;
+    overflow-y: scroll;
+}

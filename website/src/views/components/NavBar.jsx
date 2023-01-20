@@ -6,6 +6,7 @@ import Logo from '../../assets/triva-logo.png'
 import '../../styles/NavBar.css'
 import ToggleButton from './ToggleButton';
 import { ApplicationContext } from '../../context/ApplicationContext'
+import { useEffect } from 'react';
 
 function NavItem(props) {
 
@@ -52,6 +53,11 @@ export default function NavBar(props) {
             onClick: Logout,
         },
     ]
+    
+    useEffect(() => {
+        setActiveIndex(0)
+        setNavMenuOpen(false)
+    }, [userData])
 
     return (
         <div className='brandBar' id={darkMode ? 'dark':''}>
@@ -62,6 +68,7 @@ export default function NavBar(props) {
                 <div className={navMenuOpen ? 'nav open-menu':'nav'} id={darkMode ? 'darkModeNav' : ''}>
 
                     {tabs.map((tab, index) => <NavItem
+                        key={index}
                         value={tab.display}
                         onClick={() => {
                             tab.path ? Navigate(tab.path, index) : ''

@@ -49,12 +49,14 @@
 	-webkit-text-size-adjust: 100%;
 
 	overflow-x: hidden;
+
 }
 
 * {
 	margin: 0;
 	padding: 0;
-	transition: 200ms;
+
+	transition: 300ms;
 
 	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
 	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
@@ -66,6 +68,8 @@ body {
 	flex-direction: column;
 	width: 99.9vw;
 	min-height: 99.9vh;
+
+	transition: none;
 }
 
 #root {
@@ -75,12 +79,3 @@ body {
 	min-height: 100%;
 }
 
-a {
-    color: var(--linkColor);
-    text-decoration: none;
-    margin: 5pt;
-}
-
-a:hover {
-	filter: brightness(90%);
-}

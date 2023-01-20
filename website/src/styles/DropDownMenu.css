@@ -6,7 +6,6 @@
     justify-content: flex-start;
     align-items: center;
 
-    cursor: pointer;
     margin: 5pt;
     margin-top: 12pt;
     margin-bottom: 12pt;
@@ -30,6 +29,10 @@
     height: 30pt;
 
     z-index: 1;
+}
+
+.selectionBody {
+    cursor: pointer;
 }
 
 .selectionBody:hover {
@@ -97,6 +100,7 @@
     padding: 5pt;
     width: 100%;
     background-color: var(--fieldBackground);
+    cursor: pointer;
 }
 
 .dropDownMenu .selectionElement:hover {

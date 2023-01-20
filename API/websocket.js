@@ -25,6 +25,9 @@ function AlertUserFriendAccept(socketID, userWhoRequested) {
 }
 
 function DisconnectSocket(socketID) {
+    if(!socketID) return
+
+    console.log(`Attempting to disconnect Socket: ${socketID}`);
     io.in(socketID).disconnectSockets(true)
 }
 

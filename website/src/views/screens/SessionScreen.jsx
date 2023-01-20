@@ -2,11 +2,19 @@ import React, { useContext, useEffect } from 'react';
 import { ApplicationContext } from '../../context/ApplicationContext';
 import { SessionContext } from '../../context/SessionContext';
 import {InputButton} from '../components/Button';
+import UserInviteOverlay from '../components/UserInviteOverlay';
 
 export default function SessionScreen(props) {
 
     const { darkMode } = useContext(ApplicationContext)
-    const { activeSession, activeSessionHosted, DeleteActiveHostedSession, VerifyActiveSession, LeaveActiveSession } = useContext(SessionContext)
+    const {
+        activeSession,
+        activeSessionHosted,
+        DeleteActiveHostedSession,
+        VerifyActiveSession,
+        LeaveActiveSession,
+        InviteToSession,
+    } = useContext(SessionContext)
 
     function TryDeleteSession() {
         DeleteActiveHostedSession()
@@ -17,6 +25,8 @@ export default function SessionScreen(props) {
     }, [])
 
     return (
+        <>
+        <UserInviteOverlay />
         <div className='page-container-centered'>
             <h1>{activeSession.title}</h1>
             <h3>{activeSession.id}</h3>
@@ -24,6 +34,9 @@ export default function SessionScreen(props) {
             <h2>{activeSession.key}</h2>
             <InputButton
                 value='Invite'
+                onPush={() => {
+
+                }}
             />
             {activeSessionHosted ?
             <>
@@ -47,5 +60,6 @@ export default function SessionScreen(props) {
             </>
             }
         </div>
+        </>
     );
 }

@@ -10,13 +10,24 @@ const SessionSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    password: {
-        type: String,
-        required: false,
-    },
     topic: {
         type: String,
         required: true,
+    },
+    difficulty: {
+        type: Number,
+        required: true,
+        min: 0,
+        max: 2,
+    },
+    maxUsers: {
+        type: Number,
+        required: false,
+        default: 10
+    },
+    allowUserInvites: {
+        type: Boolean,
+        default: true
     },
     key: {
         type: String,

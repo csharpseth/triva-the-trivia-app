@@ -111,7 +111,9 @@ router.post('/request', async (req, res) => {
 
         const newFriendRequest = new FriendRequest({
             sender: user._id,
-            recipient: userToAdd._id
+            senderUsername: user.username,
+            recipient: userToAdd._id,
+            recipientUsername: userToAdd.username
         })
 
         await newFriendRequest.save()
@@ -158,7 +160,7 @@ router.post('/cancel', async (req, res) => {
         }
 
         const existingRequest = await FriendRequest.findOne({$or: [{ sender: user._id, recipient: userToCancel._id }, { sender: userToCancel._id, recipient: user._id }]})
-        console.log(existingRequest)
+        
         if(!existingRequest) {
             console.log(`No friend request found from: ${userToCancel.username}.`)
             res.json({ success: false, message: `No valid friend request found.` })

@@ -7,6 +7,7 @@ import { API_URL, SOCKET_URL } from '../IGNORE/URLs'
 
 import { ApplicationContext } from "./ApplicationContext";
 import { FriendsContext } from "./FriendsContext";
+import { useEffect } from "react";
 
 export const SocketContext = createContext()
 
@@ -15,69 +16,85 @@ var socket = null
 export const SocketProvider = ({ children }) => {
     const navigate = useNavigate()
 
-    const [ID, setID] = useState()
-    const { userData, AcceptFriend, DeclineFriendRequest, Notify, CloseNotification } = useContext(ApplicationContext)
-    const { LoadAllFriends } = useContext(FriendsContext)
+    const { userData, Notify, CloseNotification } = useContext(ApplicationContext)
+    const { LoadAllFriends, AcceptFriend, DeclineFriendRequest } = useContext(FriendsContext)
 
-    function EstablishSocketRoom(roomKey) {
-        socket.emit('setup-room', roomKey)
-    }
+    let connected = false
 
-    function Socket_FriendRequest(userID) {
-        socket.emit('notify-request-friend', userID)
-    }
-
-    useLayoutEffect(() => {
-        if(socket === null && userData !== undefined) {
+    function TryConnect() {
+        if(socket === null) {
+            console.log(`Attempting to connect to ${SOCKET_URL}...`);
             socket = io(SOCKET_URL)
-
-            socket.on('connect', () => {
-                axios.post(`${API_URL}/users/set_socket_id`, 
-                {
-                    username: userData.username,
-                    socket_id: socket.id
-                }).then(res => {
-                    if(res.data.success) {
-                        setID(socket.id)
-                    }
-                }).catch(e => {
-                    console.log(e)
-                })
-            })
-
-            socket.on('notify-request-friend', (name, username, userID) => {
-                LoadAllFriends()
-                Notify(`Friend Request From: ${username}.`, 5000, [
-                    {
-                        value: 'Accept',
-                        style: 'positive',
-                        action: (index) => {
-                            AcceptFriend(userID)
-                            setTimeout(LoadAllFriends, 250)
-                            CloseNotification()
-                        }
-                    },
-                    {
-                        value: 'Decline',
-                        style: 'negative',
-                        action: (index) => {
-                            DeclineFriendRequest(userID)
-                            setTimeout(LoadAllFriends, 250)
-                            CloseNotification()
-                        }
-                    }
-                ])
-            })
-
-            socket.on('notify-accept-friend', (name, username, userID) => {
-                LoadAllFriends()
-                Notify(`${username} accepted your friend request.`, 5000)
-            })
+            if(userData) {
+                Setup()
+            }
         }
+    }
+
+    function Setup() {
+        socket.on('connect', () => {
+
+            axios.post(`${API_URL}/users/set_socket_id`, 
+            {
+                userID: userData._id,
+                authKey: userData.authKey,
+                socket_id: socket.id
+            }).then(res => {
+                if(res.data.success) {
+                    connected = true
+                    console.log('Successfully Connected.')
+                } else {
+                    connected = false
+                    socket = null
+                    console.log('Failed To Connect.')
+                }
+            }).catch(e => {
+                console.log(e)
+            })
+        })
+
+        socket.on('disconnect', () => {
+            connected = false
+            socket = null
+            console.log('Socket Connection Terminated.')
+        })
+
+        socket.on('notify-request-friend', (name, username, userID) => {
+            LoadAllFriends()
+            Notify(`Friend Request From: ${username}.`, 5000, [
+                {
+                    value: 'Accept',
+                    style: 'positive',
+                    action: (index) => {
+                        AcceptFriend(userID)
+                        setTimeout(LoadAllFriends, 250)
+                        CloseNotification()
+                    }
+                },
+                {
+                    value: 'Decline',
+                    style: 'negative',
+                    action: (index) => {
+                        DeclineFriendRequest(userID)
+                        setTimeout(LoadAllFriends, 250)
+                        CloseNotification()
+                    }
+                }
+            ])
+        })
+
+        socket.on('notify-accept-friend', (name, username, userID) => {
+            LoadAllFriends()
+            Notify(`${username} accepted your friend request.`, 5000)
+        })
+    }
+
+    useEffect(() => {
+        TryConnect()
     }, [])
 
     return (
-        <SocketContext.Provider value={{ ID, EstablishSocketRoom, Socket_FriendRequest }}>
+        <SocketContext.Provider value={{  }}>
             {children}
         </SocketContext.Provider>
     )

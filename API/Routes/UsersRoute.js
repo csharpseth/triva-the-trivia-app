@@ -11,6 +11,7 @@ const mongoose = require('mongoose')
 
 const User = require('../Models/User')
 const { FriendRequest } = require('../Models/FriendRequest')
+const { Invite } = require('../Models/Invite')
 const { DisconnectSocket } = require('../websocket')
 
 
@@ -90,6 +91,15 @@ const SearchUsers = async(query, exclude) => {
     return final
 }
 
+const SearchFriends = async(user, query) => {
+    const reg = new RegExp(query, 'i')
+    let results = await user.friends.filter(f => {
+        return reg.test(f.username) || reg.test(f.name)
+    })
+    
+    return results
+}
+
 const downloadAvatarImage = async(username) => {
     const url = `https://api.multiavatar.com/${username}.png`
     const fileName = `${username}.png`
@@ -113,7 +123,7 @@ router.get('/findall/:query', async (req, res) => {
 })
 
 router.get('/:username', async (req, res) => {
-    const username = req.params.username
+    const username = req.params.username.toLowerCase()
 
     try {
         const user = await User.findOne({ username })
@@ -149,20 +159,70 @@ router.get('/socket/:userId', async (req, res) => {
     }
 })
 
+router.get('/notifications/:userID/:authKey', async (req, res) => {
+    const userID = req.params.userID
+    const authKey = req.params.authKey
+
+    try {
+        const user = await User.findById(userID)
+        if(!user) {
+            console.log(`Notifications :: Unable to finder user: ${userID}.`)
+            res.json({ success: false, message: 'No User With That ID Found.' })
+            return
+        }
+        
+        if(user.authentication.key !== authKey) {
+            console.log(`Notifications :: AuthKey Mismatch.`)
+            res.json({ success: false, message: 'AuthKey Mismatch.' })
+            return
+        }
+
+        let friendRequests = user.friendRequestReceived
+
+        friendRequests = friendRequests.sort((a, b) => {
+            return a.createdAt - b.createdAt
+        })
+
+        res.json({ success: true, friendRequests })
+
+    } catch (error) {
+        console.log(error.message)
+        res.json({ success: false, message: error.message })
+    }
+})
+
 router.post('/findall', async (req, res) => {
     let temp = await SearchUsers(req.body.query, req.body.userID)
     res.json(temp)
 })
 
+router.post('/:userID/findfriends', async (req, res) => {
+    const userID = req.params.userID
+
+    const user = User.findById(userID)
+    if(!user) {
+        console.log(`Find Friends :: Unable to finder user: ${userID}.`)
+        res.json({ success: false, message: 'No User Found.' })
+        return
+    }
+
+    const query = req.body.query
+
+    const results = await SearchFriends(user, query)
+    console.log('Success');
+    res.json({ success: true, results })
+})
+
 router.post('/:username/edit', async (req, res) => {
-    const oldUsername = req.body.oldUser
+    const userID = req.body.userID
+    const oldUsername = req.body.oldUser.toLowerCase()
     const password = req.body.password
 
     try {
-        const user = await User.findOne({ oldUsername })
+        const user = await User.findById(userID)
         if(user === undefined || user === null) {
-            console.log(`Unable to finder user: ${oldUsername}.`)
-            res.json({ success: false, message: 'No User With That Username Found.' })
+            console.log(`Edit :: Unable to finder user: ${userID}.`)
+            res.json({ success: false, message: 'No User Found.' })
             return
         }
         
@@ -173,7 +233,7 @@ router.post('/:username/edit', async (req, res) => {
                 return
             }
 
-            const newUsername = req.body.username
+            const newUsername = req.body.username.toLowerCase()
             const name = req.body.name
 
             user.username = newUsername
@@ -205,17 +265,24 @@ router.post('/:username/edit', async (req, res) => {
 })
 
 router.post('/set_socket_id', async (req, res) => {
-    const username = req.body.username
+    const userID = req.body.userID
+    const authKey = req.body.authKey
     const socket_id = req.body.socket_id
 
     try {
-        const user = await User.findOne({ username })
-        if(user === undefined || user === null) {
-            console.log(`Unable to finder user: ${username}.`)
-            res.json({ success: false, message: 'No User With That Username Found.' })
+        const user = await User.findById(userID)
+        if(!user) {
+            console.log(`Socket :: Unable to finder user: ${userID}.`)
+            res.json({ success: false, message: 'No User With That ID Found.' })
             return
         }
         
+        if(user.authentication.key !== authKey) {
+            console.log(`Socket :: AuthKey Mismatch.`)
+            res.json({ success: false, message: 'AuthKey Mismatch.' })
+            return
+        }
+
         user.socket_id = socket_id
         await user.save()
 
@@ -228,12 +295,12 @@ router.post('/set_socket_id', async (req, res) => {
 })
 
 router.post('/login', async (req, res) => {
-    const username = req.body.username
+    const username = req.body.username.toLowerCase()
     const password = req.body.password
 
     try {
         const user = await User.findOne({ username })
-        if(user === undefined || user === null) {
+        if(!user) {
             console.log(`Unable to finder user: ${username}.`)
             res.json({ success: false, message: 'No User With That Username Found.' })
             return
@@ -262,19 +329,19 @@ router.post('/login', async (req, res) => {
 })
 
 router.post('/loginwithauth', async (req, res) => {
-    const username = req.body.username
+    const username = req.body.username.toLowerCase()
     const authKey = req.body.authKey
 
     try {
         const user = await User.findOne({ username })
         if(user === undefined || user === null) {
-            console.log(`Unable to finder user: ${username}.`)
+            console.log(`Login With Auth :: Unable to finder user: ${username}.`)
             res.json({ success: false, message: 'No User With That Username Found.' })
             return
         }
         
         if(user.authentication.key !== authKey) {
-            console.log(`AuthKey Mismatch.`)
+            console.log(`Login With Auth :: AuthKey Mismatch.`)
             res.json({ success: false, message: 'AuthKey Mismatch.' })
             return
         }
@@ -292,14 +359,14 @@ router.post('/loginwithauth', async (req, res) => {
 })
 
 router.post('/logout', async (req, res) => {
-    const username = req.body.username
+    const userID = req.body.userID
     const authKey = req.body.authKey
 
     try {
-        const user = await User.findOne({ username })
+        const user = await User.findById(userID)
         if(user === undefined || user === null) {
-            console.log(`Unable to finder user: ${username}.`)
-            res.json({ success: false, message: 'No User With That Username Found.' })
+            console.log(`Logout :: Unable to finder user: ${userID}.`)
+            res.json({ success: false, message: 'No User With That ID Found.' })
             return
         }
 
@@ -327,14 +394,14 @@ router.post('/logout', async (req, res) => {
 
 router.post('/register', async (req, res) => {
     const name = req.body.name
-    const username = req.body.username
+    const username = req.body.username.toLowerCase()
     const password = req.body.password
 
     try {
-        const alreadyUser = await User.exists({ username: username })
+        const user = await User.exists({ username: username })
 
-        if(alreadyUser === true) {
-            console.log(`Unable to create user: ${username}, one with that name already exists.`)
+        if(user === true) {
+            console.log(`Register :: ${username} already exists.`)
             res.json({ success: false, message: 'Username Taken.' })
             return
         }

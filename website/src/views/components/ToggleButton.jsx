@@ -21,7 +21,7 @@ export default function ToggleButton(props) {
 
     useEffect(() => {
         setToggle(props.value)
-    }, [props.value])
+    }, [])
 
     return (
         <div className={className} id={id} >

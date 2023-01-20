@@ -1,7 +1,7 @@
 import React from 'react';
 import { useContext } from 'react';
 import { ApplicationContext } from '../../context/ApplicationContext';
-import { SocketContext } from '../../context/SocketContext';
+import { FriendsContext } from '../../context/FriendsContext';
 
 import { API_URL } from '../../IGNORE/URLs';
 import { InputButton } from './Button';
@@ -9,9 +9,11 @@ import { InputButton } from './Button';
 export default function ProfileItem(props) {
 
     const { data, relationship, tabIndex, onActionTaken } = props
-    const { darkMode, FriendRequest, AcceptFriend, DeclineFriendRequest, CancelFriendRequest, RemoveFriend, navigate } = useContext(ApplicationContext)
-    const { Socket_FriendRequest } = useContext(SocketContext)
+    
+    const { darkMode } = useContext(ApplicationContext)
+    const { FriendRequest, AcceptFriend, DeclineFriendRequest, CancelFriendRequest, RemoveFriend } = useContext(FriendsContext)
 
+    
     return (
         <div className='profileItem' id={darkMode?'dark':''} tabIndex={tabIndex}>
             <img className='profileAvatar' src={`${API_URL}/avatar/${data.username}.png`} />
@@ -23,7 +25,7 @@ export default function ProfileItem(props) {
                 </div>
             </div>
             <div className='vertical-center'>
-                {relationship !== 'friend' ?
+                {relationship !== 'friend' && relationship !== 'invite' ?
                 <InputButton
                     value={relationship === 'pending' ? 'Pending' : (relationship === 'waiting' ? 'Accept' : 'Add Friend')}
                     styling={relationship === 'pending' ? 'disabled' : (relationship === 'waiting' ? 'positive' : 'neutral')}
@@ -35,17 +37,23 @@ export default function ProfileItem(props) {
                                 AcceptFriend(data._id, onActionTaken)
                                 break;
                             default:
-                                Socket_FriendRequest(data._id)
                                 FriendRequest(data._id, onActionTaken)
                                 break;
                     }
                 }} />
                 :
+                (relationship === 'invite' ?
+                <InputButton
+                    value='Invite'
+                    styling='neutral'
+                    onPush={() => RemoveFriend(data._id, onActionTaken)}
+                />
+                :
                 <InputButton
                     value='Remove Friend'
                     styling='negative'
                     onPush={() => RemoveFriend(data._id, onActionTaken)}
-                />
+                />)
                 }
 
                 {relationship === 'pending' ?
