@@ -16,19 +16,15 @@ export default function SessionScreen(props) {
         activeSession,
         activeSessionUsers,
         activeSessionHosted,
-        DeleteActiveHostedSession,
-        VerifyActiveSession,
-        LeaveActiveSession,
+        DeleteSession,
+        VerifySession,
+        LeaveSession,
     } = useContext(SessionContext)
 
     const [ overlayActive, setOverlayActive ] = useState(false)
 
-    function TryDeleteSession() {
-        DeleteActiveHostedSession()
-    }
-
     useEffect(() => {
-        VerifyActiveSession()
+        VerifySession()
     }, [])
 
     return (
@@ -52,7 +48,7 @@ export default function SessionScreen(props) {
                 <InputButton
                     value='Delete'
                     styling='negative'
-                    onPush={TryDeleteSession}
+                    onPush={() => DeleteSession(activeSession._id)}
                 />
                 </>
                 :
@@ -60,7 +56,7 @@ export default function SessionScreen(props) {
                 <InputButton
                     value='Leave'
                     styling='negative'
-                    onPush={LeaveActiveSession}
+                    onPush={() => LeaveSession(activeSession._id)}
                 />
             </>
             }

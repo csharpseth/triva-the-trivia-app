@@ -32,41 +32,51 @@ function AlertUserOfGameInvite(socketID, userWhoInvited, invite) {
     io.to(socketID).emit('notify-game-invite', message)
 }
 
-function CreateOrJoinRoom(socketID, roomKey) {
-    const socket = io.sockets.sockets.get(socketID)
-    console.log(`${socketID} created/joined room: ${roomKey}`);
+function CreateOrJoinRoom(user, roomKey) {
+    const socket = io.sockets.sockets.get(user.socket_id)
+    if(!socket) {
+        console.log(`Socket Create/Join Room :: Unable to find socket with ID: ${user.socket_id}`)
+        return false
+    }
+
     socket.join(roomKey)
+
+    const message = {
+        name: user.name,
+        username: user.username,
+        key: roomKey
+    }
+
+    socket.to(roomKey).emit('user-join-game', message)
+    return true
 }
 
 function DeleteRoom(roomKey) {
-    io.socketsLeave(roomKey)
+    try {
+        io.socketsLeave(roomKey)
+        return true
+    } catch (error) {
+        console.log(`Socket Delete Room :: ${error}`)
+        return false
+    }
 }
 
-function LeaveRoom(socketID, roomKey) {
-    const socket = io.sockets.sockets.get(socketID)
+function LeaveRoom(user, roomKey) {
+    const socket = io.sockets.sockets.get(user.socket_id)
+    if(!socket) {
+        console.log(`Socket Leave Room :: Unable to find socket with ID: ${user.socket_id}`)
+        return false
+    }
     socket.leave(roomKey)
-}
 
-function UserJoinedGame(user, roomKey) {
     const message = {
         name: user.name,
         username: user.username,
+        key: roomKey
     }
 
-    console.log(`${user.name} joined room: ${roomKey}`);
-
-    io.to(roomKey).emit('user-join-game', message)
-}
-
-function UserLeftGame(user, roomKey) {
-    const message = {
-        name: user.name,
-        username: user.username,
-    }
-
-    console.log(`${user.name} left room: ${roomKey}`);
-
-    io.to(roomKey).emit('user-leave-game', message)
+    socket.to(roomKey).emit('user-leave-game', message)
+    return true
 }
 
 function DisconnectSocket(socketID) {
@@ -83,9 +93,6 @@ module.exports = {
     CreateOrJoinRoom,
     DeleteRoom,
     LeaveRoom,
-    
-    UserJoinedGame,
-    UserLeftGame,
     
     DisconnectSocket,
 }

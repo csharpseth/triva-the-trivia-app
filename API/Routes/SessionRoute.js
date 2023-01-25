@@ -13,76 +13,215 @@ const {
     CreateOrJoinRoom,
     DeleteRoom,
     LeaveRoom,
-    UserJoinedGame,
-    UserLeftGame
 } = require('../websocket')
 
-function ConstructSessionResponse(session) {
-    return {
-        success: true,
-        session: {
-            id: session._id,
-            title: session.title,
-            topic: session.topic,
-            key: session.key,
-        }
+async function GetResponseSession(sessionID) {
+    const session = await Session.findById(sessionID, 'title topic difficulty key')
+    if(!session) return { success: false, message: `No Session with ID: ${sessionID}.` }
+
+    return { success: true, session: session }
+}
+
+async function FindAndValidateUser(userID, authKey) {
+    const user = await User.findById(userID)
+    if(!user) return { success: false, message: `No User with ID: ${userID}.` }
+    if(user.authentication.key !== authKey) return { success: false, message: 'AuthKey Mismatch.' }
+
+    return { success: true, user: user }
+}
+
+async function GetUserAndSession(userID, sessionID) {
+    const user = await User.findById(userID)
+    if(!user) return { success: false, message: `No User with ID: ${userID}.` }
+    const session = await Session.findById(sessionID)
+    if(!session) return { success: false, message: `No Session with ID: ${sessionID}.` }
+
+    return { success: true, user, session }
+}
+
+async function AddHostedSessionToUser(userID, sessionID) {
+    const response = await GetUserAndSession(userID, sessionID)    
+    if(response.success === false) return response
+
+    response.user.hosted_sessions.push(response.session._id)
+    await response.user.save()
+
+    return { success: true }
+}
+
+async function RemoveSessionFromUserHost(userID, sessionID) {
+    const response = await GetUserAndSession(userID, sessionID)    
+    if(response.success === false) return response
+
+    const user = response.user
+    user.hosted_sessions = user.hosted_sessions.filter(session => String(session) !== String(sessionID))
+    await user.save()
+
+    return { success: true }
+}
+
+async function AddConnectedUser(userID, sessionID) {
+    const response = await GetUserAndSession(userID, sessionID)    
+    if(response.success === false) return response
+
+    const user = response.user
+    const session = response.session
+
+    user.connected_sessions.push(session._id)
+    await user.save()
+    session.connected_users.push(user._id)
+    await session.save()
+
+    return { success: true }
+}
+
+async function RemoveConnectedUser(userID, sessionID) {
+    const response = await GetUserAndSession(userID, sessionID)    
+    if(response.success === false) return response
+
+    const user = response.user
+    const session = response.session
+
+    user.connected_sessions = user.connected_sessions.filter(s => String(s) !== String(sessionID))
+    await user.save()
+    session.connected_users = session.connected_users.filter(u => String(u) !== String(userID))
+    await session.save()
+
+    return { success: true }
+}
+
+async function ScrubInvite(inviteID) {
+    const invite = await Invite.findById(inviteID)
+    if(!invite) return { success: false, message: `Unable to find invite with ID: ${inviteID}.` }
+        
+    const sender = await User.findById(invite.sender)
+    if(sender) {
+        sender.invitesSent = sender.invitesSent.filter(i => String(i._id) !== String(invite._id))
+        await sender.save()
     }
+    const recipient = await User.findById(invite.recipient)
+    if(recipient) {
+        recipient.invitesSent = recipient.invitesSent.filter(i => String(i._id) !== String(invite._id))
+        await recipient.save()
+    }
+
+    await invite.delete()
+
+    return { success: true }
+}
+
+async function ScrubSession(sessionID) {
+    const session = await Session.findById(sessionID)
+    if(!session) return { success: false, message: `No session with ID: ${sessionID}.` }
+
+    const connected = session.connected_users
+    const invites = session.invites
+
+    for (let i = 0; i < connected.length; i++) {
+        const user = await User.findById(connected[i])
+        if(!user) continue
+
+        user.connected_sessions.filter(s => String(s) !== String(sessionID))
+        await user.save()
+    }
+
+    for (let i = 0; i < invites.length; i++) {
+        await ScrubInvite(invites[i]._id)
+    }
+
+    const host = await User.findById(session.host)
+    if(host) {
+        host.hosted_sessions = host.hosted_sessions.filter(s => String(s) !== String(sessionID))
+        await host.save()
+    }
+
+    await session.delete()
+}
+
+async function DeleteSession(userID, authKey, sessionID) {
+    const valid = await FindAndValidateUser(userID, authKey)
+    if(valid.success === false) {
+        return valid
+    }
+
+    const foundSession = await FindSession(sessionID)
+    if(foundSession.success === false) {
+        return foundSession
+    }
+
+    if(String(foundSession.session.host) !== String(valid.user._id)) {
+        return { success: false, message: 'User is not host.' }
+    }
+
+    await ScrubSession(sessionID)
+
+    return { success: true, message: 'Successfully deleted session.' }
+}
+
+async function CreateInvite(userID, authKey, userToInviteID, sessionID) {
+    const validUser = await FindAndValidateUser(userID, authKey)
+    if(validUser.success === false) return validUser
+
+    const validSession = await FindSession(sessionID)
+    if(validSession.success === false) return validSession
+
+    const user = validUser.user
+    const session = validSession.session
+    const userToInvite = await User.findById(userToInviteID)
+    if(!userToInvite) return { success: false, message: `User to invite ID: ${userToInviteID} doesn't exist.` }
+
+    const existingInvite = await Invite.findOne({
+        session: sessionID,
+        recipientUsername: userToInvite.username,
+        senderUsername: user.username
+    })
+
+    if(existingInvite) {
+        return { success: false, message: `User ID: ${userToInviteID} has already been invited.` }
+    }
+
+    const invite = new Invite({
+        session: session._id,
+        
+        sender: user._id,
+        senderName: user.name,
+        senderUsername: user.username,
+
+        recipient: userToInvite._id,
+        recipientName: userToInvite.name,
+        recipientUsername: userToInvite.username,
+    })
+
+    await invite.save()
+
+    user.invitesSent.push(invite)
+    await user.save()
+    userToInvite.invitesReceived.push(invite)
+    await userToInvite.save()
+    session.invites.push(invite)
+    await session.save()
+
+    return { success: true, user: user, userToInvite: userToInvite, invite: invite }
+}
+
+async function FindSession(sessionID) {
+    const session = await Session.findById(sessionID)
+    if(!session) return { success: false, message: `No Session with ID: ${sessionID}.` }
+
+    return { success: true, session: session }
 }
 
 router.get('/verify/:sessionID/:userID', async (req, res) => {
-    const sessionId = req.params.sessionID
-    const userID = req.params.userID
-
-    try {
-        const session = await Session.findById(sessionId)
-        if(session === undefined || session === null) {
-            console.log(`No session with ID: ${sessionId}.`)
-            res.json({ success: false, message: `No session with ID: ${sessionId}.` })
-            return
-        }
-
-        const user = await User.findById(userID)
-        if(!user) {
-            console.log(`Session Verify :: Unable to finder user: ${userID}.`)
-            res.json({ success: false, message: 'No User Found.' })
-            return
-        }
-
-        let userConnected = String(session.host) === String(userID)
-        if(userConnected === false) {
-            for (let i = 0; i < session.connected_users.length; i++) {
-                const connectedUser = session.connected_users[i];
-                if(String(connectedUser) === String(userID)) {
-                    userConnected = true
-                    break
-                }
-            }
-        }
-
-        if(userConnected === false) {
-            user.connected_sessions = await user.connected_sessions.filter(s => String(s) !== String(session._id))
-            await user.save()
-            console.log(`Session Verify :: User: ${userID} wasn't connected to session ${sessionId}.`)
-            res.json({ success: false, message: 'User Not Connected.' })
-            return
-        }
-
-        const resSession = await ConstructSessionResponse(session)
-        res.json(resSession)
-
-    } catch (error) {
-        console.log(`Session Verify :: ${error.message}`)
-        res.json({ success: false, message: error.message })
-    }
+    
 })
 
-router.get('/users/:sessionID', async (req, res) => {
+router.get('/get/users/:sessionID', async (req, res) => {
     const sessionId = req.params.sessionID
-
+    console.log(req.params.sessionID)
     try {
-        const session = await Session.findById(sessionId)
+        const session = await Session.findOne({ key: sessionId })
         if(!session) {
-            console.log(`Session Get Connected Users :: No session with ID: ${sessionId}.`)
+            console.log(`Get Connected Session Users :: No session with ID: ${sessionId}.`)
             res.json({ success: false, message: `No session with ID: ${sessionId}.` })
             return
         }
@@ -90,457 +229,267 @@ router.get('/users/:sessionID', async (req, res) => {
         const connectedUsers = await User.find({ connected_sessions: { $in: [session._id] } }, 'name username score')
         res.json({ success: true, users: connectedUsers })
     } catch (error) {
-        console.log(`Session Get Connected Users :: ${error.message}`)
+        console.log(`Get Connected Session Users :: ${error.message}`)
         res.json({ success: false, message: error.message })
     }
 })
 
 router.get('/:userID/:authKey', async (req, res) => {
-    const userID = req.params.userID
-    const authKey = req.params.authKey
-
-    try {
-        const user = await User.findById(userID)
-        if(!user) {
-            console.log(`Session Verify :: Unable to finder user: ${userID}.`)
-            res.json({ success: false, message: 'No User Found.' })
-            return
-        }
-
-        if(user.authentication.key !== authKey) {
-            console.log(`Session Verify :: AuthKey Mismatch.`)
-            res.json({ success: false, message: 'AuthKey Mismatch.' })
-            return
-        }
-
-        let hostedSessions = []
-
-        for (let i = 0; i < user.hosted_sessions.length; i++) {
-            const session = await Session.findById(user.hosted_sessions[i])
-            if(!session) continue
-
-            hostedSessions.push(ConstructSessionResponse(session).session)
-        }
-
-        let connectedSessions = []
-
-        for (let i = 0; i < user.connected_sessions.length; i++) {
-            const session = await Session.findById(user.connected_sessions[i])
-            if(!session) continue
-
-            connectedSessions.push(ConstructSessionResponse(session).session)
-        }
-
-        res.json({ success: true, hostedSessions, connectedSessions })
-
-    } catch (error) {
-        console.log(`Session Verify :: ${error.message}`)
-        res.json({ success: false, message: error.message })
-    }
+    
 })
 
 router.post('/create', async (req, res) => {
-    const hostID = req.body.userID
-    const sessionTitle = req.body.title
-    const sessionTopic = req.body.topic
-    const sessionDifficulty = req.body.difficulty
-
     try {
-        const user = await User.findById(hostID)
-        if(user === undefined || user === null) {
-            console.log(`Session Create :: Unable to finder user: ${hostID}.`)
-            res.json({ success: false, message: 'No User Found.' })
+        const userID = req.body.userID
+        const authKey = req.body.authKey
+
+        const title = req.body.title
+        const topic = req.body.topic
+        const difficulty = req.body.difficulty
+
+
+        let user = await FindAndValidateUser(userID, authKey)
+        if(user.success === false) {
+            console.log(`Create Session Error :: ${user.message}`)
+            res.json(user)
             return
         }
-        
-        let uniqueKey = `${uuid()}`.toUpperCase()
-        uniqueKey = uniqueKey.slice(0, 6)
+        user = user.user
 
-        const newSession = new Session({
+        const key = `${uuid()}`.slice(0, 6).toUpperCase()
+
+        if(!CreateOrJoinRoom(user, key)) {
+            console.log(`Create Session Error :: Failed to establish socket room.`)
+            res.json({ success: false, message: 'Failed to establish socket room.' })
+            return
+        }
+
+        const session = new Session({
             host: user._id,
-            title: sessionTitle,
-            topic: Topics[sessionTopic],
-            difficulty: sessionDifficulty,
-            key: uniqueKey,
+            title,
+            topic,
+            difficulty,
+            key
         })
 
-        await newSession.save()
+        await session.save()
 
-        user.hosted_sessions.push(newSession._id)
-        user.save()
+        const addHostResponse = await AddHostedSessionToUser(userID, session._id)
+        if(addHostResponse.success === false) {
+            console.log(`Create Session Error :: ${addHostResponse.message}`)
+            res.json({ success: false, message: addHostResponse.message })
+            return
+        }
 
-        CreateOrJoinRoom(user.socket_id, uniqueKey)
+        const response = await GetResponseSession(session._id)
+        res.json(response)
+    } catch (err) {
+        console.log(`Create Session Error :: ${err}`)
+        res.json({ success: false, message: 'Create Session Error.' })
+    }
+})
 
-        const resSession = ConstructSessionResponse(newSession)
+router.post('/delete', async (req, res) => {
+    try {
+        const userID = req.body.userID
+        const authKey = req.body.authKey
+        const sessionID = req.body.sessionID
 
-        res.json(resSession)
+        const session = await FindSession(sessionID)
+        if(session.success === false) {
+            console.log(`Delete Session Error :: ${session.message}`)
+            return
+        }
 
-    } catch (error) {
-        console.log(`Session Create :: ${error}`)
-        res.json({ success: false, message: error })
+        const response = await DeleteSession(userID, authKey, sessionID)
+        if(response.success === false) {
+            console.log(`Delete Session Error :: ${response.message}`)
+        }
+
+        DeleteRoom(session.key)
+
+        res.json(response)
+
+    } catch (err) {
+        console.log(`Delete Session Error :: ${err}`)
+        res.json({ success: false, message: 'Delete Session Error.' })
     }
 })
 
 router.post('/join', async (req, res) => {
-    const userID = req.body.userID
-    const sessionKey = req.body.key
-
     try {
-        const user = await User.findById(userID)
-        if(!user) {
-            console.log(`Session Join :: Unable to finder user: ${userID}.`)
-            res.json({ success: false, message: 'No User Found.' })
-            return
-        }
+        const userID = req.body.userID
+        const authKey = req.body.authKey
+        const sessionKey = req.body.sessionKey
 
         const session = await Session.findOne({ key: sessionKey })
         if(!session) {
-            console.log(`Session Join :: No session with Key: ${sessionKey}.`)
-            res.json({ success: false, message: `No Session Found.` })
+            console.log(`Join Session Error :: No session with Key: ${sessionKey}.`)
+            res.json({ success: false, message: `No session with Key: ${sessionKey}.` })
             return
         }
 
-        session.connected_users.push(user._id)
-        await session.save()
-        user.connected_sessions.push(session._id)
-        await user.save()
+        const validUser = await FindAndValidateUser(userID, authKey)
+        if(validUser.success === false) {
+            console.log(`Join Session Error :: ${validUser.message}`)
+            res.json(validUser)
+            return
+        }
 
-        CreateOrJoinRoom(user.socket_id, sessionKey)
-        UserJoinedGame(user, sessionKey)
+        const user = validUser.user
 
-        const resSession = ConstructSessionResponse(session)
+        const response = await AddConnectedUser(userID, session._id)
+        if(response.success === false) {
+            console.log(`Join Session Error :: ${response.message}`)
+            res.json(response)
+            return
+        }
 
-        res.json(resSession)
+        if(!CreateOrJoinRoom(user, session.key)) {
+            console.log(`Join Session Error :: Failed to establish socket room.`)
+            res.json({ success: false, message: 'Failed to establish socket room.' })
+            return
+        }
 
+        const responseSession = await GetResponseSession(session._id)
 
-    } catch (error) {
-        console.log(`Session Join :: ${error.message}`)
-        res.json({ success: false, message: error.message })
+        res.json(responseSession)
+    } catch (err) {
+        console.log(`Join Session Error :: ${err}`)
+        res.json({ success: false, message: 'Join Session Error.' })
     }
-
 })
 
 router.post('/leave', async (req, res) => {
-    const userID = req.body.userID
-    const sessionId = req.body.sessionId
-
     try {
-        const user = await User.findById(userID)
-        if(user === undefined || user === null) {
-            console.log(`Session Leave :: Unable to finder user: ${userID}.`)
-            res.json({ success: false, message: 'No User Found.' })
+        const userID = req.body.userID
+        const authKey = req.body.authKey
+        const sessionID = req.body.sessionID
+
+        const session = await Session.findById(sessionID)
+        if(!session) {
+            console.log(`Leave Session Error :: No session with ID: ${sessionKey}.`)
+            res.json({ success: false, message: `No session with ID: ${sessionKey}.` })
             return
         }
 
-        const session = await Session.findById(sessionId)
-        if(session === undefined || session === null) {
-            console.log(`No session with Key: ${sessionId}.`)
-            res.json({ success: false, message: `No session with Key: ${sessionId}.` })
+        const validUser = await FindAndValidateUser(userID, authKey)
+        if(validUser.success === false) {
+            console.log(`Leave Session Error :: ${validUser.message}`)
+            res.json(validUser)
             return
         }
 
-        session.connected_users = session.connected_users.filter(e => String(e) !== String(user._id))
-        await session.save()
-        user.connected_sessions = user.connected_sessions.filter(e => String(e) !== String(sessionId))
-        await user.save()
+        const user = validUser.user
+        LeaveRoom(user, session.key)
 
-        LeaveRoom(user.socket_id, session.key)
-        UserLeftGame(user, session.key)
+        const response = await RemoveConnectedUser(userID, session._id)
+        if(response.success === false) {
+            console.log(`Leave Session Error :: ${response.message}`)
+            res.json(response)
+            return
+        }
 
         res.json({ success: true, message: 'Successfully left session.' })
-
-
-    } catch (error) {
-        console.log(`Session Leave :: ${error.message}`)
-        res.json({ success: false, message: error.message })
-    }
-
-})
-
-router.post('/delete', async (req, res) => {
-    const hostID = req.body.userID
-    const hostAuthKey = req.body.authKey
-    const sessionId = req.body.sessionId
-
-    try {
-        const user = await User.findById(hostID)
-        if(user === undefined || user === null) {
-            console.log(`Session Delete :: Unable to finder user: ${hostID}.`)
-            res.json({ success: false, message: 'No User Found.' })
-            return
-        }
-
-        if(user.authentication.key !== hostAuthKey) {
-            console.log(`Session Delete :: AuthKey mismatch.`)
-            res.json({ success: false, message: 'AuthKey mismatch.' })
-            return
-        }
-
-        const session = await Session.findById(sessionId)
-        if(session === undefined || session === null) {
-            console.log(`Session Delete :: No session with ID: ${sessionId}.`)
-            res.json({ success: false, message: `No Session Found.` })
-            return
-        }
-
-        if(String(session.host) !== String(user._id)) {
-            console.log(`Session Delete :: User: ${user.username} is not the host of session: ${sessionId}.`)
-            res.json({ success: false, message: `You are not the host of session: ${sessionId}.` })
-            return
-        }
-        
-        for (let i = 0; i < session.connected_users.length; i++) {
-            const connectedUser = await User.findById(session.connected_users[i])
-            if(!connectedUser) continue
-
-            connectedUser.connected_sessions = connectedUser.connected_sessions.filter(e => String(e) !== String(sessionId))
-            await connectedUser.save()
-        }
-
-        const invites = await Invite.find({ session: session._id })
-        for (let i = 0; i < invites.length; i++) {
-            const inv = invites[i];
-            const sender = await User.findById(inv.sender)
-            const recipient = await User.findById(inv.recipient)
-
-            sender.invitesSent = sender.invitesSent.filter(e => String(e._id) !== String(inv._id))
-            await sender.save()
-            recipient.invitesReceived = recipient.invitesReceived.filter(e => String(e._id) !== String(inv._id))
-            await recipient.save()
-            await inv.delete()
-        }
-
-        await session.delete()
-        user.hosted_sessions = user.hosted_sessions.filter(e => String(e) !== String(sessionId))
-        await user.save()
-
-        DeleteRoom(session.key)
-
-        res.json({ success: true, message: 'Successfully deleted session.' })
-
-    } catch (error) {
-        console.log(`Session Delete :: ${error.message}`)
-        res.json({ success: false, message: error.message })
+    } catch (err) {
+        console.log(`Leave Session Error :: ${err}`)
+        res.json({ success: false, message: 'Leave Session Error.' })
     }
 })
 
 router.post('/invite', async (req, res) => {
-    const userID = req.body.userID
-    const authKey = req.body.authKey
-    const sessionId = req.body.sessionId
-    const userToInviteID = req.body.userToInviteID
-
     try {
-        const user = await User.findById(userID)
-        if(user === undefined || user === null) {
-            console.log(`Session Invite :: Unable to finder user: ${userID}.`)
-            res.json({ success: false, message: 'No User Found.' })
+        const userID = req.body.userID
+        const authKey = req.body.authKey
+        const sessionID = req.body.sessionID
+        const userToInviteID = req.body.userToInviteID
+
+        const response = await CreateInvite(userID, authKey, userToInviteID, sessionID)
+        if(response.success === false) {
+            console.log(`Invite To Session Error :: ${response.message}`)
+            res.json(response)
             return
         }
 
-        if(user.authentication.key !== authKey) {
-            console.log(`Session Invite :: AuthKey mismatch.`)
-            res.json({ success: false, message: 'AuthKey mismatch.' })
-            return
-        }
-
-        const session = await Session.findById(sessionId)
-        if(session === undefined || session === null) {
-            console.log(`Session Invite :: No session with ID: ${sessionId}.`)
-            res.json({ success: false, message: `No Session Found.` })
-            return
-        }
-
-        if(session.allowUserInvites === false && String(session.host) !== userID) {
-            console.log(`Session Invite :: Failed To Invite, Not Permitted By Sesion`)
-            res.json({ success: false, message: 'Invalid Permissions.' })
-            return
-        }
-
-        const userToInvite = await User.findById(userToInviteID)
-        if(!userToInvite) {
-            console.log(`Session Invite :: Unable to finder user to invite: ${userID}.`)
-            res.json({ success: false, message: 'No User To Invite Found.' })
-            return
-        }
-
-        const existingInvite = await Invite.findOne({
-            $and: [
-                {
-                    session: session._id
-                },
-                {
-                    $or: [
-                        {
-                            sender: user._id,
-                            recipient: userToInvite._id
-                        },
-                        {
-                            sender: userToInvite._id,
-                            recipient: user._id
-                        }
-                    ]
-                }
-            ]
-        })
-
-        if(existingInvite) {
-            console.log(`Session Invite :: One Already Exists.`)
-            res.json({ success: false })
-            return
-        }
-        
-        const newInvite = new Invite({
-            session: session._id,
-            sender: user._id,
-            senderUsername: user.username,
-            senderName: user.name,
-            recipient: userToInvite._id,
-            recipientUsername: userToInvite.username,
-            recipientName: userToInvite.name,
-        })
-        await newInvite.save()
-
-        session.invites.push(newInvite)
-        await session.save()
-        user.invitesSent.push(newInvite)
-        await user.save()
-        userToInvite.invitesReceived.push(newInvite)
-        await userToInvite.save()
-
-        AlertUserOfGameInvite(userToInvite.socket_id, user, newInvite)
-
-        res.json({ success: true })
-
-    } catch (error) {
-        console.log(`Session Invite Create :: ${error.message}`)
-        res.json({ success: false, message: error.message })
+        AlertUserOfGameInvite(response.userToInvite.socket_id, response.user, response.invite)
+        res.json({ success: true, message: 'Successfully invited user.' })
+    } catch (err) {
+        console.log(`Invite To Session Error :: ${err}`)
+        res.json({ success: false, message: 'Invite To Session Error.' })
     }
 })
 
 router.post('/invite/accept', async (req, res) => {
-    const userID = req.body.userID
-    const authKey = req.body.authKey
-    const inviteID = req.body.inviteID
-
     try {
-        const user = await User.findById(userID)
-        if(user === undefined || user === null) {
-            console.log(`Session Invite :: Unable to finder user: ${userID}.`)
-            res.json({ success: false, message: 'No User Found.' })
+        const userID = req.body.userID
+        const authKey = req.body.authKey
+        const inviteID = req.body.inviteID
+
+        const validUser = await FindAndValidateUser(userID, authKey)
+        if(validUser.success === false) {
+            console.log(`Accept Session Invite Error :: ${validUser.message}`)
+            res.json(validUser)
+            return
+        }
+        const user = validUser.user
+
+        const invite = await Invite.findById(inviteID)
+        if(!invite) {
+            console.log(`Accept Session Invite Error :: No invite with ID: ${inviteID}.`)
+            res.json({ success: false, message: `No invite with ID: ${inviteID}.` })
             return
         }
 
-        if(user.authentication.key !== authKey) {
-            console.log(`Session Invite :: AuthKey mismatch.`)
-            res.json({ success: false, message: 'AuthKey mismatch.' })
+        if(String(invite.recipient) !== String(userID)) {
+            console.log(`Accept Session Invite Error :: User ID: ${userID} is not the recipient of Invite ID: ${inviteID}.`)
+            res.json({ success: false, message: `User ID: ${userID} is not the recipient of Invite ID: ${inviteID}.` })
             return
         }
-
-        const existingInvite = await Invite.findById(inviteID)
-        if(!existingInvite) {
-            console.log(`Session Invite :: No Invite Exists.`)
-            res.json({ success: false })
-            return
-        }
-
-        const session = await Session.findById(existingInvite.session)
-        if(session === undefined || session === null) {
-            console.log(`Session Invite :: No session with ID: ${existingInvite.session}.`)
-            res.json({ success: false, message: `No Session Found.` })
-            return
-        }
-
-        const userSent = await User.findById(existingInvite.sender)
-        if(!userSent) {
-            console.log(`Session Invite :: Unable to finder user to invite: ${existingInvite.sender}.`)
-            res.json({ success: false, message: 'No User To Invite Found.' })
-            return
-        }
-
         
-        session.invites = await session.invites.filter(invite => String(invite._id) !== String(existingInvite._id))
-        session.connected_users.push(user._id)
-        await session.save()
-        user.invitesReceived = await user.invitesReceived.filter(invite => String(invite._id) !== String(existingInvite._id))
-        user.connected_sessions.push(session._id)
-        await user.save()
-        userSent.invitesSent = await userSent.invitesSent.filter(invite => String(invite._id) !== String(existingInvite._id))
-        await userSent.save()
+        const session = await Session.findById(invite.session)
+        if(!session) {
+            console.log(`Accept Session Invite Error :: No session with ID: ${invite.session}.`)
+            res.json({ success: false, message: `No session with ID: ${invite.session}.` })
+            return
+        }
 
-        await existingInvite.delete()
+        const scrubbed = await ScrubInvite(inviteID)
+        if(scrubbed.success == false) {
+            console.log(`Accept Session Invite Error :: ${scrubbed.message}`)
+            res.json(scrubbed)
+            return
+        }
 
-        const resSession = await ConstructSessionResponse(session)
-        
-        CreateOrJoinRoom(user.socket_id, session.key)
-        UserJoinedGame(user, session.key)
+        const response = await AddConnectedUser(userID, session._id)
+        if(response.success === false) {
+            console.log(`Accept Session Invite Error :: ${response.message}`)
+            res.json(response)
+            return
+        }
 
-        res.json(resSession)
+        if(!CreateOrJoinRoom(user, session.key)) {
+            console.log(`Accept Session Invite Error :: Failed to establish socket room.`)
+            res.json({ success: false, message: 'Failed to establish socket room.' })
+            return
+        }
 
-    } catch (error) {
-        console.log(`Session Invite Accept :: ${error.message}`)
-        res.json({ success: false, message: error.message })
+        const responseSession = await GetResponseSession(session._id)
+
+        res.json(responseSession)
+    } catch (err) {
+        console.log(`Accept Session Invite Error :: ${err}`)
+        res.json({ success: false, message: 'Session Invite Accept Error.' })
     }
 })
 
 router.post('/invite/remove', async (req, res) => {
-    const userID = req.body.userID
-    const authKey = req.body.authKey
-    const inviteID = req.body.inviteID
-
     try {
-        const user = await User.findById(userID)
-        if(user === undefined || user === null) {
-            console.log(`Session Invite Remove :: Unable to finder user: ${userID}.`)
-            res.json({ success: false, message: 'No User Found.' })
-            return
-        }
-
-        if(user.authentication.key !== authKey) {
-            console.log(`Session Invite Remove :: AuthKey mismatch.`)
-            res.json({ success: false, message: 'AuthKey mismatch.' })
-            return
-        }
-
-        const existingInvite = await Invite.findById(inviteID)
-        if(!existingInvite) {
-            console.log(`Session Invite Remove :: No Invite Exists.`)
-            res.json({ success: false })
-            return
-        }
-
-        const session = await Session.findById(existingInvite.session)
-        if(session === undefined || session === null) {
-            console.log(`Session Invite Remove :: No session with ID: ${existingInvite.session}.`)
-            res.json({ success: false, message: `No Session Found.` })
-            return
-        }
-
-        const otherUserID = String(existingInvite.sender) === userID ? existingInvite.recipient : existingInvite.sender
-
-        const otherUser = await User.findById(otherUserID)
-        if(!otherUser) {
-            console.log(`Session Invite Remove :: Unable to finder user to invite: ${otherUserID}.`)
-            res.json({ success: false, message: 'No User To Invite Found.' })
-            return
-        }
-
-        session.invites = await session.invites.filter(invite => String(invite._id) !== String(existingInvite._id))
-        await session.save()
-        user.invitesSent = await user.invitesSent.filter(invite => String(invite._id) !== String(existingInvite._id))
-        user.invitesReceived = await user.invitesReceived.filter(invite => String(invite._id) !== String(existingInvite._id))
-        await user.save()
-        otherUser.invitesSent = await otherUser.invitesSent.filter(invite => String(invite._id) !== String(existingInvite._id))
-        otherUser.invitesReceived = await otherUser.invitesReceived.filter(invite => String(invite._id) !== String(existingInvite._id))
-        await otherUser.save()
-
-        await existingInvite.delete()
-
-        res.json({ success: true })
-
-    } catch (error) {
-        console.log(`Session Invite Remove :: ${error.message}`)
-        res.json({ success: false, message: error.message })
+        const inviteID = req.body.inviteID
+        const response = await ScrubInvite(inviteID)
+        res.json(response)
+    } catch (err) {
+        console.log(`Session Invite Remove Error :: ${err}`)
+        res.json({ success: false, message: 'Session Invite Remove Error.' })
     }
 })
 

@@ -3,15 +3,15 @@ import { useNavigate } from 'react-router-dom'
 import { useCookies } from 'react-cookie'
 import axios from "axios";
 
-
-import { API_URL } from '../IGNORE/URLs'
+import { API_URL, SESSION_URL } from '../IGNORE/URLs'
 import { ApplicationContext } from "./ApplicationContext";
 
 export const SessionContext = createContext()
 
+
 export const SessionProvider = ({ children }) => {
     const navigate = useNavigate()
-    const [activeSession, setOggaBooga] = useState()
+    const [activeSession, setActiveSession] = useState()
     const [activeSessionUsers, setActiveSessionUsers] = useState([])
     const [activeSessionHosted, setActiveSessionHosted] = useState(false)
 
@@ -30,190 +30,161 @@ export const SessionProvider = ({ children }) => {
         navigate('/session')
     }
 
-    function setActiveSession(session) {
-        console.log(`Setting Session...`);
-        console.log(`Setting Session :: ${session}`);
-        setOggaBooga(session)
-    }
-
     function GoToActiveSession() {
         navigate('/session')
     }
 
     function CreateSession(title, topic, difficulty) {
         Loading(true)
-        axios.post(`${API_URL}/session/create`, { userID: userData._id, title, topic, difficulty })
-        .then(res => {
+        axios.post(`${SESSION_URL}/create`, {
+            userID: userData._id,
+            authKey: userData.authKey,
+            title,
+            topic,
+            difficulty
+        }).then(res => {
             if(res.data.success === true) {
-                console.log('Created Session');
                 setActiveSession(res.data.session)
                 setActiveSessionHosted(true)
-                navigate('/session')
+                GoToActiveSession()
+                console.log('Successfully created a new game.')
             }
             Loading(false)
-        }).catch(e => {
-            console.log(`Create Session Error: ${e}`)
+        }).catch(error => {
+            console.log(`Create Session Error :: ${error}`)
             Loading(false)
         })
     }
 
     function JoinSession(sessionKey) {
         Loading(true)
-        axios.post(`${API_URL}/session/join`, { userID: userData._id, key: sessionKey })
-        .then(res => {
+        axios.post(`${SESSION_URL}/join`, {
+            userID: userData._id,
+            authKey: userData.authKey,
+            sessionKey
+        }).then(res => {
             if(res.data.success === true) {
-                console.log('Joined Session');
                 setActiveSession(res.data.session)
                 setActiveSessionHosted(false)
-                navigate('/session')
+                GoToActiveSession()
+                console.log('Successfully joined game.')
             }
             Loading(false)
-        }).catch(e => {
-            console.log(`Create Session Error: ${e}`)
+        }).catch(error => {
+            console.log(`Join Session Error :: ${error}`)
             Loading(false)
         })
     }
 
-    function DeleteActiveHostedSession() {
-        if(activeSessionHosted !== true) return
+    function DeleteSession(sessionID) {
         Loading(true)
-        axios.post(`${API_URL}/session/delete`, { userID: userData._id, authKey: userData.authKey, sessionId: activeSession.id })
-        .then(res => {
+        axios.post(`${SESSION_URL}/delete`, {
+            userID: userData._id,
+            authKey: userData.authKey,
+            sessionID
+        }).then(res => {
             if(res.data.success === true) {
-                console.log('Delete Session');
-                setActiveSession(undefined)
+                setActiveSession()
                 setActiveSessionHosted(false)
                 navigate('/')
+                console.log(`${res.data.message}`)
             }
             Loading(false)
-        }).catch(e => {
-            console.log(`Session Delete Error: ${e}`)
+        }).catch(error => {
+            console.log(`Create Session Error :: ${error}`)
             Loading(false)
         })
     }
 
-    function VerifyActiveSession() {
+    function VerifySession(sessionID, userID) {
+        
+    }
+
+    function LeaveSession(sessionID) {
         Loading(true)
-        axios.get(`${API_URL}/session/verify/${activeSession.id}/${userData._id}`)
-        .then(res => {
+        axios.post(`${SESSION_URL}/leave`, {
+            userID: userData._id,
+            authKey: userData.authKey,
+            sessionID
+        }).then(res => {
             if(res.data.success === true) {
-                console.log('verify Session');
-                setActiveSession(res.data.session)
-            }else {
-                console.log('verify Session failed');
-                setActiveSession(undefined)
-                navigate('/')
+                console.log('Successfully left game.')
             }
-            Loading(false)
-        }).catch(e => {
-            console.log(`Session Delete Error: ${e}`)
-            Loading(false)
-        })
-    }
-
-    function LeaveActiveSession() {
-        Loading(true)
-        axios.post(`${API_URL}/session/leave`, { userID: userData._id, sessionId: activeSession.id })
-        .then(res => {
-            console.log('Leave Session');
-            setActiveSession(undefined)
+            setActiveSession()
+            setActiveSessionHosted(false)
             navigate('/')
             Loading(false)
-        }).catch(e => {
-            console.log(`Session Delete Error: ${e}`)
+        }).catch(error => {
+            console.log(`Leave Session Error :: ${error}`)
             Loading(false)
         })
     }
 
-    function InviteToSession(userToInviteID, callback) {
-        if(!activeSession) {
-            console.log('No active session to invite to.')
-            return
-        }
-        Loading(true)
-        axios.post(`${API_URL}/session/invite`, {
+    function InviteToSession(userToInviteID, sessionID, callback) {
+        axios.post(`${SESSION_URL}/invite`, {
             userID: userData._id,
             authKey: userData.authKey,
-            sessionId: activeSession.id,
-            userToInviteID
-        })
-        .then(res => {
-            if(res.data.success) {
-                console.log('Successfully Invited User')
+            userToInviteID,
+            sessionID
+        }).then(res => {
+            if(res.data.success === true) {
+                console.log(res.data.message)
                 callback ? callback() : ''
             }
-            Loading(false)
-        }).catch(e => {
-            console.log(`Session Invite Error: ${e}`)
-            Loading(false)
+        }).catch(error => {
+            console.log(`Invite To Session Error :: ${error}`)
         })
     }
 
-    function AcceptSessionInvite(inviteID, callback) {
+    function AcceptInvite(inviteID, callback) {
         Loading(true)
-        axios.post(`${API_URL}/session/invite/accept`, {
+        axios.post(`${SESSION_URL}/invite/accept`, {
             userID: userData._id,
             authKey: userData.authKey,
             inviteID
-        })
-        .then(res => {
+        }).then(res => {
             if(res.data.success === true) {
-                console.log('Accept Session Invite');
                 setActiveSession(res.data.session)
                 setActiveSessionHosted(false)
-                navigate('/session')
+                GoToActiveSession()
+                console.log('Successfully joined game.')
+
                 callback ? callback() : ''
-            } else {
-                console.log('Failed To Accept Invite.')
             }
             Loading(false)
-        }).catch(e => {
-            console.log(`Invitiation Accept Error: ${e}`)
+        }).catch(error => {
+            console.log(`Invite Accept Error :: ${error}`)
             Loading(false)
         })
     }
 
-    function RemoveSessionInvite(inviteID, callback) {
-        Loading(true)
-        axios.post(`${API_URL}/session/invite/remove`, {
-            userID: userData._id,
-            authKey: userData.authKey,
-            inviteID
-        })
+    function RemoveInvite(inviteID, callback) {
+        axios.post(`${SESSION_URL}/invite/remove`, { inviteID })
         .then(res => {
             if(res.data.success === true) {
-                console.log('Successfully Removed Invite.')
+                console.log(res.data.message)
                 callback ? callback() : ''
-            } else {
-                console.log('Failed To Remove Invite.')
             }
-            Loading(false)
-        }).catch(e => {
-            console.log(`Invitiation Remove Error: ${e}`)
-            Loading(false)
+        })
+        .catch(error => {
+            console.log(`Invite Remove Error :: ${error}`)
         })
     }
 
     function GetUserSessions() {
-        axios.get(`${API_URL}/session/${userData._id}/${userData.authKey}`)
-        .then(res => {
-            if(res.data.success === true) {
-                setHostedSessions(res.data.hostedSessions)
-                setConnectedSessions(res.data.connectedSessions)
-            }
-        }).catch(err => {
-            console.log(`Failed To Fetch User Sessions: ${err}`)
-        })
+        
     }
 
-    function GetConnectedUsers() {
-        console.log(`Active Session Get Users: ${activeSession.id}`);
-        axios.get(`${API_URL}/session/users/${activeSession.id}`)
+    function GetConnectedUsers(key) {
+        console.log(key);
+
+        axios.get(`${SESSION_URL}/get/users/${key}`)
         .then(res => {
-            console.log(res.data);
             if(res.data.success === true) {
                 setActiveSessionUsers(res.data.users)
-
+                console.log(res.data)
+            } else {
+                setActiveSessionUsers([])
             }
         }).catch(err => {
             console.log(`Failed To Fetch User Sessions: ${err}`)
@@ -221,10 +192,6 @@ export const SessionProvider = ({ children }) => {
     }
 
     useLayoutEffect(() => {
-        GetUserSessions()
-        if(activeSession) {
-            GetConnectedUsers()
-        }
         axios.get(`${API_URL}/configdata`)
         .then(res => {
             setTopics(res.data.topics)
@@ -232,6 +199,8 @@ export const SessionProvider = ({ children }) => {
         }).catch(err => {
             console.log(`Failed To Fetch Topics: ${err}`)
         })
+
+        GetConnectedUsers(activeSession ? activeSession.key : 'none')
     }, [activeSession, activeSessionHosted])
 
     return (
@@ -246,14 +215,14 @@ export const SessionProvider = ({ children }) => {
             GoToActiveSession,
             SetActiveSession,
             CreateSession,
-            DeleteActiveHostedSession,
+            DeleteSession,
             JoinSession,
-            VerifyActiveSession,
-            LeaveActiveSession,
+            VerifySession,
+            LeaveSession,
             GetConnectedUsers,
             InviteToSession,
-            AcceptSessionInvite,
-            RemoveSessionInvite
+            AcceptInvite,
+            RemoveInvite
         }}>
             {children}
         </SessionContext.Provider>

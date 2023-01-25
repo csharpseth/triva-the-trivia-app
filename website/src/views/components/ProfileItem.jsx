@@ -12,7 +12,7 @@ export default function ProfileItem(props) {
     const { data, relationship, tabIndex, onActionTaken } = props
     
     const { darkMode } = useContext(ApplicationContext)
-    const { InviteToSession } = useContext(SessionContext)
+    const { activeSession, InviteToSession } = useContext(SessionContext)
     const {
         FriendRequest,
         AcceptFriend,
@@ -54,7 +54,7 @@ export default function ProfileItem(props) {
                 <InputButton
                     value='Invite'
                     styling='neutral'
-                    onPush={() => InviteToSession(data._id, onActionTaken)}
+                    onPush={() => InviteToSession(data._id, activeSession._id, onActionTaken)}
                 />
                 :
                 <InputButton

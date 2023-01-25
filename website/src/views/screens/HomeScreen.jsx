@@ -22,7 +22,7 @@ export default function HomeScreen(props) {
     const [createFormDifficulty, setCreateFormDifficulty] = useState(0)
 
     function SubmitCreateSession() {
-        if(createFormTitle === '' || createFormTopic === '') return
+        if(createFormTitle === '') return
 
         CreateSession(createFormTitle, createFormTopic, createFormDifficulty)
     }

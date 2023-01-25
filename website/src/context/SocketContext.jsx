@@ -18,17 +18,15 @@ export const SocketProvider = ({ children }) => {
 
     const { userData, Notify, CloseNotification } = useContext(ApplicationContext)
     const { LoadAllFriends, AcceptFriend, DeclineFriendRequest } = useContext(FriendsContext)
-    const { AcceptSessionInvite, RemoveSessionInvite, GetConnectedUsers } = useContext(SessionContext)
+    const { activeSession, AcceptInvite, RemoveInvite, GetConnectedUsers } = useContext(SessionContext)
 
     let connected = false
 
     function TryConnect() {
-        if(socket === null) {
-            console.log(`Attempting to connect to ${SOCKET_URL}...`);
-            socket = io(SOCKET_URL)
-            if(userData) {
-                Setup()
-            }
+        console.log(`Attempting to connect to ${SOCKET_URL}...`);
+        socket = io(SOCKET_URL)
+        if(userData) {
+            Setup()
         }
     }
 
@@ -97,7 +95,7 @@ export const SocketProvider = ({ children }) => {
                     value: 'Accept',
                     style: 'positive',
                     action: (index) => {
-                        AcceptSessionInvite(res.inviteID)
+                        AcceptInvite(res.inviteID)
                         CloseNotification()
                     }
                 },
@@ -105,7 +103,7 @@ export const SocketProvider = ({ children }) => {
                     value: 'Decline',
                     style: 'negative',
                     action: (index) => {
-                        RemoveSessionInvite(res.inviteID)
+                        RemoveInvite(res.inviteID)
                         CloseNotification()
                     }
                 }
@@ -114,12 +112,12 @@ export const SocketProvider = ({ children }) => {
 
         socket.on('user-join-game', (res) => {
             Notify(`${res.name} joined your game.`, 3000)
-            GetConnectedUsers()
+            GetConnectedUsers(res.key)
         })
 
         socket.on('user-leave-game', (res) => {
             Notify(`${res.name} left your game.`, 3000)
-            GetConnectedUsers()
+            GetConnectedUsers(res.key)
         })
     }
 
