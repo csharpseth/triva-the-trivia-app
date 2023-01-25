@@ -16,8 +16,8 @@ export const FriendsProvider = ({ children }) => {
     const [sentFriendRequests, setSentRequests] = useState([])
     const [friends, setFriends] = useState([])
     
-    function LoadAllFriends() {
-        Loading(true)
+    function LoadAllFriends(showLoading = true) {
+        showLoading ? Loading(true) : ''
         axios.get(`${API_URL}/friends/${userData._id}/${userData.authKey}`)
         .then(res => {
             if(res.data.success === true) {
@@ -25,11 +25,11 @@ export const FriendsProvider = ({ children }) => {
                 setSentRequests(res.data.sentUsers)
                 setFriends(res.data.friends)
             }
-            Loading(false)
+            showLoading ? Loading(false) : ''
         })
         .catch(e => {
             console.log(e.message)
-            Loading(false)
+            showLoading ? Loading(false) : ''
         })
     }
 

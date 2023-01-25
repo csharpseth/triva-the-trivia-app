@@ -2,6 +2,7 @@ import React from 'react';
 import { useContext } from 'react';
 import { ApplicationContext } from '../../context/ApplicationContext';
 import { FriendsContext } from '../../context/FriendsContext';
+import { SessionContext } from '../../context/SessionContext';
 
 import { API_URL } from '../../IGNORE/URLs';
 import { InputButton } from './Button';
@@ -11,7 +12,14 @@ export default function ProfileItem(props) {
     const { data, relationship, tabIndex, onActionTaken } = props
     
     const { darkMode } = useContext(ApplicationContext)
-    const { FriendRequest, AcceptFriend, DeclineFriendRequest, CancelFriendRequest, RemoveFriend } = useContext(FriendsContext)
+    const { InviteToSession } = useContext(SessionContext)
+    const {
+        FriendRequest,
+        AcceptFriend,
+        DeclineFriendRequest,
+        CancelFriendRequest,
+        RemoveFriend
+    } = useContext(FriendsContext)
 
     
     return (
@@ -46,7 +54,7 @@ export default function ProfileItem(props) {
                 <InputButton
                     value='Invite'
                     styling='neutral'
-                    onPush={() => RemoveFriend(data._id, onActionTaken)}
+                    onPush={() => InviteToSession(data._id, onActionTaken)}
                 />
                 :
                 <InputButton

@@ -35,13 +35,34 @@ const UserSchema = new mongoose.Schema({
         default: 0,
         min: 0,
     },
-    friends: [mongoose.Schema.ObjectId],
-    friendRequestReceived: [FriendRequestSchema],
-    friendRequestSent: [FriendRequestSchema],
-    invitesReceived: [InviteSchema],
-    invitesSent: [InviteSchema],
-    hosted_sessions: [mongoose.Schema.ObjectId],
-    connected_sessions: [mongoose.Schema.ObjectId],
+    friends: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    friendRequestReceived: {
+        type: [FriendRequestSchema],
+        default: []
+    },
+    friendRequestSent: {
+        type: [FriendRequestSchema],
+        default: []
+    },
+    invitesReceived: {
+        type: [InviteSchema],
+        default: []
+    },
+    invitesSent: {
+        type: [InviteSchema],
+        default: []
+    },
+    hosted_sessions: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    connected_sessions: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
 
     socket_id: String,
 

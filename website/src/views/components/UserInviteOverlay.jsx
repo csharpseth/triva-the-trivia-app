@@ -5,12 +5,15 @@ import { useContext } from 'react';
 import { FriendsContext } from '../../context/FriendsContext';
 import { useState } from 'react';
 import ProfileItem from './ProfileItem';
+import CloseButton from './CloseButton'
+
 import { NO_SPEC_CHAR_ALLOW_SPACE } from '../../config/REGEX'
 
 import '../../styles/UserInviteOverlay.css'
 
-export default function UserInviteOverlay() {
+export default function UserInviteOverlay(props) {
 
+    const { onClose } = props
     const { friends, SearchForFriends, LoadAllFriends } = useContext(FriendsContext)
 
     const [query, setQuery] = useState('')
@@ -32,6 +35,8 @@ export default function UserInviteOverlay() {
 
     return (
         <ModalWindow>
+            <CloseButton onClose={onClose} />
+            <h1>Invite to Game</h1>
             <InputField value={query} onChange={OnQueryChange} />
             <div className="results">
                 {query.length > 0 ?

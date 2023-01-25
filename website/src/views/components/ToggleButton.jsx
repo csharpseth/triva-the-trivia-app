@@ -20,7 +20,9 @@ export default function ToggleButton(props) {
     }
 
     useEffect(() => {
-        setToggle(props.value)
+        if(props.value !== toggle) {
+            setToggle(props.value)
+        }
     }, [])
 
     return (

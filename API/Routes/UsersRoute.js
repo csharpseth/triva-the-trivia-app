@@ -117,6 +117,76 @@ const downloadAvatarImage = async(username) => {
     }
 }
 
+async function FindAndVerifyUser(userID, authKey) {
+    try {
+        const user = await User.findById(userID)
+        if(user === undefined || user === null) {
+            console.log(`Find And Verify User :: Unable to finde user: ${userID}.`)
+            return { success: false, message: 'No User With That Username Found.' }
+        }
+        
+        if(user.authentication.key !== authKey) {
+            console.log(`Find And Verify User :: AuthKey Mismatch.`)
+            return { success: false, message: 'AuthKey Mismatch.' }
+        }
+        
+        return { success: true, user }
+    } catch (error) {
+        console.log(`Find And Verify User Error :: ${error.message}`)
+        return undefined
+    }
+}
+
+async function LoginUserWithPassword(username, password) {
+    try {
+        const user = await User.findOne({ username })
+        if(!user) {
+            console.log(`Unable to finder user: ${username}.`)
+            return { success: false, message: 'No User With That Username Found.' }
+        }
+        
+        let validPassword = await bcrypt.compare(password, user.passwordHash)
+
+        if(validPassword) {
+            user.authentication.loggedIn = true
+            user.authentication.key !== '' ? '' : user.authentication.key = uuid()
+
+            await user.save()
+
+            return ConstructAuthenticatedResponseUser(user)
+        }
+
+        return { success: false, message: 'Incorrect Password.' }
+
+    } catch (error) {
+        console.log(`Login Error :: ${error.message}`)
+        return { success: false, message: error.message }
+    }
+}
+
+async function LogoutUser(userID) {
+    try {
+        const user = await User.findById(userID)
+        if(!user) {
+            console.log(`Logout User :: Unable to finder user: ${userID}.`)
+            return { success: false, message: 'No User With That ID Found.' }
+        }
+
+        DisconnectSocket(user.socket_id)
+
+        user.authentication.loggedIn = false
+        user.authentication.key = ''
+        user.socket_id = ''
+
+        await user.save()
+
+        return { success: true }
+    } catch (error) {
+        console.log(`Logout User Error :: ${error.message}`)
+        return { success: false, message: error.message }
+    }
+}
+
 router.get('/findall/:query', async (req, res) => {
     let temp = await SearchUsers(req.params.query)
     res.json(temp)
@@ -176,14 +246,37 @@ router.get('/notifications/:userID/:authKey', async (req, res) => {
             res.json({ success: false, message: 'AuthKey Mismatch.' })
             return
         }
+        // friendRequests = friendRequests.sort((a, b) => {
+        //     return a.createdAt - b.createdAt
+        // })
 
         let friendRequests = user.friendRequestReceived
+        let invites = user.invitesReceived
 
-        friendRequests = friendRequests.sort((a, b) => {
+        let ledger = []
+        for (let i = 0; i < friendRequests.length; i++) {
+            const request = friendRequests[i];
+            ledger.push({
+                type: 'friend',
+                index: i,
+                createdAt: request.createdAt
+            })
+        }
+        for (let i = 0; i < invites.length; i++) {
+            const invite = invites[i];
+            ledger.push({
+                type: 'invite',
+                index: i,
+                createdAt: invite.createdAt
+            })
+        }
+
+        ledger = ledger.sort((a, b) => {
             return a.createdAt - b.createdAt
         })
 
-        res.json({ success: true, friendRequests })
+
+        res.json({ success: true, data: { ledger, friendRequests, invites } })
 
     } catch (error) {
         console.log(error.message)
@@ -298,98 +391,30 @@ router.post('/login', async (req, res) => {
     const username = req.body.username.toLowerCase()
     const password = req.body.password
 
-    try {
-        const user = await User.findOne({ username })
-        if(!user) {
-            console.log(`Unable to finder user: ${username}.`)
-            res.json({ success: false, message: 'No User With That Username Found.' })
-            return
-        }
-        
-        bcrypt.compare(password, user.passwordHash, async (error, result) => {
-            if(result === false) {
-                console.log(`Incorrect Password!`)
-                res.json({ success: false, message: 'Incorrect Password!' })
-                return
-            }
-
-            user.authentication.loggedIn = true
-            user.authentication.key !== '' ? '' : user.authentication.key = uuid()
-
-            await user.save()
-
-            const responseUser = ConstructAuthenticatedResponseUser(user)
-            res.json(responseUser)
-        })
-
-    } catch (error) {
-        console.log(error.message)
-        res.json({ success: false, message: error.message })
-    }
+    response = await LoginUserWithPassword(username, password)
+    res.json(response)
 })
 
 router.post('/loginwithauth', async (req, res) => {
-    const username = req.body.username.toLowerCase()
+    const userID = req.body.userID
     const authKey = req.body.authKey
 
-    try {
-        const user = await User.findOne({ username })
-        if(user === undefined || user === null) {
-            console.log(`Login With Auth :: Unable to finder user: ${username}.`)
-            res.json({ success: false, message: 'No User With That Username Found.' })
-            return
-        }
-        
-        if(user.authentication.key !== authKey) {
-            console.log(`Login With Auth :: AuthKey Mismatch.`)
-            res.json({ success: false, message: 'AuthKey Mismatch.' })
-            return
-        }
-        user.authentication.loggedIn = true
+    const verifiedUser = await FindAndVerifyUser(userID, authKey)
 
-        await user.save()
-
-        const responseUser = ConstructAuthenticatedResponseUser(user)
-        res.json(responseUser)
-
-    } catch (error) {
-        console.log(error.message)
-        res.json({ success: false, message: error.message })
+    if(verifiedUser.success === false) {
+        res.json(verifiedUser)
+        return
     }
+
+    const response = await ConstructAuthenticatedResponseUser(verifiedUser.user)
+    res.json(response)
 })
 
 router.post('/logout', async (req, res) => {
     const userID = req.body.userID
-    const authKey = req.body.authKey
 
-    try {
-        const user = await User.findById(userID)
-        if(user === undefined || user === null) {
-            console.log(`Logout :: Unable to finder user: ${userID}.`)
-            res.json({ success: false, message: 'No User With That ID Found.' })
-            return
-        }
-
-        if(user.authentication.key !== authKey) {
-            console.log(`User AuthKey Mismatch.`)
-            res.json({ success: false, message: 'AuthKey Mismatch.' })
-            return
-        }
-
-        DisconnectSocket(user.socket_id)
-
-        user.authentication.loggedIn = false
-        user.authentication.key = ''
-        user.socket_id = ''
-
-        await user.save()
-
-        res.json({ success: true })
-
-    } catch (error) {
-        console.log(error.message)
-        res.json({ success: false, message: error.message })
-    }
+    const response = await LogoutUser(userID)
+    res.json(response)
 })
 
 router.post('/register', async (req, res) => {

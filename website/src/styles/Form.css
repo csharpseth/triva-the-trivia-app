@@ -32,7 +32,7 @@
     cursor: pointer;
     transition-timing-function: ease-in-out;
     transition: 300ms;
-    z-index: 12;
+    z-index: 1;
 }
 
 .closeButton:hover {

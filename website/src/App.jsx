@@ -31,8 +31,8 @@ function App() {
 					{userData !== undefined ? 
 					<>
 					<FriendsProvider>
-					<SocketProvider>
 					<SessionProvider>
+					<SocketProvider>
 						<Routes>
 							<Route index path='/' exact element={<HomeScreen />} />
 							<Route path='/profile/:user' exact element={<ProfileScreen />}/>
@@ -40,8 +40,8 @@ function App() {
 							<Route path='/session' exact element={<SessionScreen />} />
 							<Route path='*' element={<NoMatchScreen />} />
 						</Routes>
-					</SessionProvider>
 					</SocketProvider>
+					</SessionProvider>
 					</FriendsProvider>
 					</>
 					:

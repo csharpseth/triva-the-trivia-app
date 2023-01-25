@@ -35,7 +35,6 @@ export default function HomeScreen(props) {
 
     return (
         <>
-        <UserInviteOverlay />
         <div className={createFormActive ? 'home-page-container fadeOut' : 'home-page-container fadeIn'}>
             <div className="section joinSection" id={darkMode ? 'sectionDark' : ''}>
                 <h1>Join Game</h1>

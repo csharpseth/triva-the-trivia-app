@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useLayoutEffect, useState } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 import { useNavigate } from 'react-router-dom'
 import { io } from 'socket.io-client'  
 import axios from "axios";
@@ -7,7 +7,7 @@ import { API_URL, SOCKET_URL } from '../IGNORE/URLs'
 
 import { ApplicationContext } from "./ApplicationContext";
 import { FriendsContext } from "./FriendsContext";
-import { useEffect } from "react";
+import { SessionContext } from "./SessionContext";
 
 export const SocketContext = createContext()
 
@@ -18,6 +18,7 @@ export const SocketProvider = ({ children }) => {
 
     const { userData, Notify, CloseNotification } = useContext(ApplicationContext)
     const { LoadAllFriends, AcceptFriend, DeclineFriendRequest } = useContext(FriendsContext)
+    const { AcceptSessionInvite, RemoveSessionInvite, GetConnectedUsers } = useContext(SessionContext)
 
     let connected = false
 
@@ -32,41 +33,43 @@ export const SocketProvider = ({ children }) => {
     }
 
     function Setup() {
+        if(socket === null) return
         socket.on('connect', () => {
-
-            axios.post(`${API_URL}/users/set_socket_id`, 
-            {
-                userID: userData._id,
-                authKey: userData.authKey,
-                socket_id: socket.id
-            }).then(res => {
-                if(res.data.success) {
-                    connected = true
-                    console.log('Successfully Connected.')
-                } else {
-                    connected = false
-                    socket = null
-                    console.log('Failed To Connect.')
-                }
-            }).catch(e => {
-                console.log(e)
-            })
+            setTimeout(() => {
+                axios.post(`${API_URL}/users/set_socket_id`, 
+                {
+                    userID: userData._id,
+                    authKey: userData.authKey,
+                    socket_id: socket.id
+                }).then(res => {
+                    if(res.data.success) {
+                        connected = true
+                        console.log('Successfully Connected.')
+                    } else {
+                        connected = false
+                        socket = null
+                        console.log('Failed To Connect.')
+                    }
+                }).catch(e => {
+                    console.log(e)
+                })
+            }, 500)
         })
 
-        socket.on('disconnect', () => {
+        socket.on('close', () => {
             connected = false
             socket = null
             console.log('Socket Connection Terminated.')
         })
 
-        socket.on('notify-request-friend', (name, username, userID) => {
+        socket.on('notify-request-friend', (res) => {
             LoadAllFriends()
-            Notify(`Friend Request From: ${username}.`, 5000, [
+            Notify(`Friend Request From: ${res.name}.`, 5000, [
                 {
                     value: 'Accept',
                     style: 'positive',
                     action: (index) => {
-                        AcceptFriend(userID)
+                        AcceptFriend(res.userID)
                         setTimeout(LoadAllFriends, 250)
                         CloseNotification()
                     }
@@ -75,7 +78,7 @@ export const SocketProvider = ({ children }) => {
                     value: 'Decline',
                     style: 'negative',
                     action: (index) => {
-                        DeclineFriendRequest(userID)
+                        DeclineFriendRequest(res.userID)
                         setTimeout(LoadAllFriends, 250)
                         CloseNotification()
                     }
@@ -83,9 +86,40 @@ export const SocketProvider = ({ children }) => {
             ])
         })
 
-        socket.on('notify-accept-friend', (name, username, userID) => {
+        socket.on('notify-accept-friend', (res) => {
             LoadAllFriends()
-            Notify(`${username} accepted your friend request.`, 5000)
+            Notify(`${res.name} accepted your friend request.`, 5000)
+        })
+
+        socket.on('notify-game-invite', (res) => {
+            Notify(`Game Invite From: ${res.name}.`, 5000, [
+                {
+                    value: 'Accept',
+                    style: 'positive',
+                    action: (index) => {
+                        AcceptSessionInvite(res.inviteID)
+                        CloseNotification()
+                    }
+                },
+                {
+                    value: 'Decline',
+                    style: 'negative',
+                    action: (index) => {
+                        RemoveSessionInvite(res.inviteID)
+                        CloseNotification()
+                    }
+                }
+            ])
+        })
+
+        socket.on('user-join-game', (res) => {
+            Notify(`${res.name} joined your game.`, 3000)
+            GetConnectedUsers()
+        })
+
+        socket.on('user-leave-game', (res) => {
+            Notify(`${res.name} left your game.`, 3000)
+            GetConnectedUsers()
         })
     }
 

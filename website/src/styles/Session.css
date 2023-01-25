@@ -1,0 +1,93 @@
+.session {
+    padding-top: 60pt;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+	width: 100vw;
+    min-height: 100%;
+}
+
+.sessionConfig {
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    background-color: var(--foregroundColor);
+    padding: 20pt;
+
+    border: 1pt solid var(--fieldBorder);
+    border-radius: 10pt;
+
+    margin-bottom: 40pt;
+}
+
+.sessionConnectedUsers {
+    position: absolute;
+    bottom: 0;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+
+    width: 100%;
+    max-height: 30vh;
+    min-height: 10vh;
+    padding: 20pt;
+
+    overflow: hidden;
+
+    border: 1pt solid var(--fieldBorder);
+    border-top-left-radius: 30pt;
+    border-top-right-radius: 30pt;
+
+    background-color: var(--foregroundColor);
+}
+
+.sessionUser {
+    display: flex;
+    flex-direction: row;
+
+    justify-content: flex-start;
+    align-items: center;
+
+    border: 1pt solid var(--fieldBorder);
+    border-radius: 100pt;
+    padding: 10pt;
+    margin: 5pt;
+    background-color: var(--foregroundColor);
+
+    width: 140pt;
+    height: 60pt;
+
+    overflow: hidden;
+
+    filter: drop-shadow(0 0 5pt rgba(0, 0, 0, 0.15));
+}
+
+#dark .sessionUser {
+    filter: drop-shadow(0 0 5pt rgba(0, 0, 0, 0.5));
+}
+
+.sessionUserAvatar {
+    width: 40pt;
+
+    border: 1pt solid var(--accentColor);
+    border-radius: 40pt;
+
+    padding: 1pt;
+
+    margin-right: 10pt;
+
+    overflow: hidden;
+}
+
+.sessionUserName {
+    font-size: 1.8rem;
+}

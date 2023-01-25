@@ -112,8 +112,10 @@ router.post('/request', async (req, res) => {
         const newFriendRequest = new FriendRequest({
             sender: user._id,
             senderUsername: user.username,
+            senderName: user.name,
             recipient: userToAdd._id,
-            recipientUsername: userToAdd.username
+            recipientUsername: userToAdd.username,
+            recipientName: userToAdd.name
         })
 
         await newFriendRequest.save()

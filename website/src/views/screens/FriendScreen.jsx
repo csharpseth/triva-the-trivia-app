@@ -21,16 +21,23 @@ export default function FriendScreen() {
 
     function OnQueryChange(value) {
         setSearchQuery(value)
-        if(value !== '' && !NO_SPEC_CHAR_ALLOW_SPACE.test(value)) {
+        const regex = !NO_SPEC_CHAR_ALLOW_SPACE.test(value)
+
+        if(value !== '' && regex) {
             SearchFor(value)
-        } else {
+            return
+        } else if(value !== '' && !regex) {
             setSearchResults([])
+            return
         }
+
+        setSearchResults([])
+        LoadAllFriends(false)
     }
     
     function ReloadAllFriends() {
-        setSearchQuery('')
-        LoadAllFriends()
+        LoadAllFriends(false)
+        OnQueryChange(searchQuery)
     }
 
     function SearchFor(query) {

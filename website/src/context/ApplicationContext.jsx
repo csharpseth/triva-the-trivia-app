@@ -42,12 +42,12 @@ export const ApplicationProvider = ({ children }) => {
         })
     }
 
-    function LoginWithAuth(username, authKey) {
-        axios.post(`${API_URL}/users/loginwithauth`, { username, authKey })
+    function LoginWithAuth(userID, authKey) {
+        axios.post(`${API_URL}/users/loginwithauth`, { userID, authKey })
         .then(res => {
             if(res.data.success === true) {
                 setUserData(res.data.user)
-                setCookies('username', res.data.user.username, { path: '/' })
+                setCookies('userID', res.data.user._id, { path: '/' })
                 setCookies('authKey', res.data.user.authKey, { path: '/' })
                 setLoggedIn(true)
                 navigate('/')
@@ -67,7 +67,7 @@ export const ApplicationProvider = ({ children }) => {
         .then(res => {
             if(res.data.success === true) {
                 setUserData(res.data.user)
-                setCookies('username', res.data.user.username, { path: '/' })
+                setCookies('userID', res.data.user._id, { path: '/' })
                 setCookies('authKey', res.data.user.authKey, { path: '/' })
                 setLoggedIn(true)
                 navigate('/')
@@ -162,14 +162,12 @@ export const ApplicationProvider = ({ children }) => {
 
     useLayoutEffect(() => {
         setDarkMode(cookies.display === 'dark' ? true : false)
-        const username = cookies.username
+        const userID = cookies.userID
         const authKey = cookies.authKey
 
-        //console.log(`Username: ${username} Auth: ${authKey}`)
-
-        if(username !== undefined && username !== '' && authKey !== undefined && authKey !== '')
+        if(userID && authKey)
         {
-            LoginWithAuth(username, authKey)
+            LoginWithAuth(userID, authKey)
         }
     }, [])
     

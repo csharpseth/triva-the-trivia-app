@@ -33,9 +33,15 @@ const SessionSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    connected_users: [mongoose.Schema.ObjectId],
+    connected_users: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
     current_prompt: mongoose.Schema.ObjectId,
-    invites: [InviteSchema],
+    invites: {
+        type: [InviteSchema],
+        default: []
+    },
     createdAt: {
         type: Date,
         immutable: true,
